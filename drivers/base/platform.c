@@ -236,7 +236,7 @@ int platform_device_add(struct platform_device *pdev)
 	if (!pdev)
 		return -EINVAL;
 
-	if (!pdev->dev.parent)
+	if (!pdev->dev.parent)//如果该设备没有指定父设备，将其父设备设置为platform_bus，即“/sys/devices/platform/”所代表的设备，这时该设备的sysfs目录即为“/sys/devices/platform/xxx_device”
 		pdev->dev.parent = &platform_bus;
 
 	pdev->dev.bus = &platform_bus_type;
@@ -272,7 +272,7 @@ int platform_device_add(struct platform_device *pdev)
 	pr_debug("Registering platform device '%s'. Parent at %s\n",
 		 dev_name(&pdev->dev), dev_name(pdev->dev.parent));
 
-	ret = device_add(&pdev->dev);
+	ret = device_add(&pdev->dev);//将内嵌的struct device变量添加到内核中
 	if (ret == 0)
 		return ret;
 
