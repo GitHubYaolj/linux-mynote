@@ -1,0 +1,6 @@
+---- bus_kset Matches (5 in 1 files) ----
+Bus.c (e:\´ò¸¨Öú\tq2440\practise\linux-2.6.30.4\drivers\base):static struct kset *bus_kset;
+Bus.c (e:\´ò¸¨Öú\tq2440\practise\linux-2.6.30.4\drivers\base):	struct kobject *k = kset_find_obj(bus_kset, name);
+Bus.c (e:\´ò¸¨Öú\tq2440\practise\linux-2.6.30.4\drivers\base):	priv->subsys.kobj.kset = bus_kset;
+Bus.c (e:\´ò¸¨Öú\tq2440\practise\linux-2.6.30.4\drivers\base):	bus_kset = kset_create_and_add("bus", &bus_uevent_ops, NULL);
+Bus.c (e:\´ò¸¨Öú\tq2440\practise\linux-2.6.30.4\drivers\base):	if (!bus_kset)
