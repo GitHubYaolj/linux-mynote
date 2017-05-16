@@ -30,7 +30,8 @@
 
 static void driver_bound(struct device *dev)
 {
-	if (klist_node_attached(&dev->p->knode_driver)) {
+    //用来判断设备美女是否已经和驱动帅哥匹配了，如果已经被匹配的话，嘿嘿，我们的设备美女是很专一的，不会再继续匹配，会直接大叫一声，我已经嫁人了
+    if (klist_node_attached(&dev->p->knode_driver)) {
 		printk(KERN_WARNING "%s: device %s already bound\n",
 			__func__, kobject_name(&dev->kobj));
 		return;
@@ -43,7 +44,7 @@ static void driver_bound(struct device *dev)
 		blocking_notifier_call_chain(&dev->bus->p->bus_notifier,
 					     BUS_NOTIFY_BOUND_DRIVER, dev);
 
-	klist_add_tail(&dev->p->knode_driver, &dev->driver->p->klist_devices);
+	klist_add_tail(&dev->p->knode_driver, &dev->driver->p->klist_devices);//加入金丝鸟笼
 }
 
 static int driver_sysfs_add(struct device *dev)
@@ -51,10 +52,10 @@ static int driver_sysfs_add(struct device *dev)
 	int ret;
 
 	ret = sysfs_create_link(&dev->driver->p->kobj, &dev->kobj,
-			  kobject_name(&dev->kobj));
+			  kobject_name(&dev->kobj));//在总线所属的驱动下创建一个设备链接
 	if (ret == 0) {
 		ret = sysfs_create_link(&dev->kobj, &dev->driver->p->kobj,
-					"driver");
+					"driver");//在总线所属的设备下创建一个驱动链接
 		if (ret)
 			sysfs_remove_link(&dev->driver->p->kobj,
 					kobject_name(&dev->kobj));
@@ -104,7 +105,7 @@ static int really_probe(struct device *dev, struct device_driver *drv)
 {
 	int ret = 0;
 
-	atomic_inc(&probe_count);
+	atomic_inc(&probe_count);//探测计数 
 	pr_debug("bus: '%s': %s: probing driver %s with device %s\n",
 		 drv->bus->name, __func__, drv->name, dev_name(dev));
 	WARN_ON(!list_empty(&dev->devres_head));
@@ -272,7 +273,7 @@ static int __driver_attach(struct device *dev, void *data)
 	if (dev->parent)	/* Needed for USB */
 		down(&dev->parent->sem);
 	down(&dev->sem);
-	if (!dev->driver)
+	if (!dev->driver)//设备还没有指定driver
 		driver_probe_device(drv, dev);
 	up(&dev->sem);
 	if (dev->parent)

@@ -194,7 +194,7 @@ static void klist_release(struct kref *kref)
 			continue;
 
 		waiter->woken = 1;
-		mb();
+		mb();//设置内存屏障，多任务的时候用这个玩意可以把寄存器的值回写到内存，防止编译器优化产生BUG，其最主要的函数是编译器内置的，
 		wake_up_process(waiter->process);
 		list_del(&waiter->list);
 	}
@@ -215,7 +215,7 @@ static void klist_put(struct klist_node *n, bool kill)
 	spin_lock(&k->k_lock);
 	if (kill)
 		knode_kill(n);
-	if (!klist_dec_and_del(n))
+	if (!klist_dec_and_del(n))//一定要把引用计数消耗完才能调用release()
 		put = NULL;
 	spin_unlock(&k->k_lock);
 	if (put)
@@ -241,10 +241,10 @@ void klist_remove(struct klist_node *n)
 	struct klist_waiter waiter;
 
 	waiter.node = n;
-	waiter.process = current;
-	waiter.woken = 0;
+	waiter.process = current;//这是个任务结构体，把当前任务结构体保存起来
+	waiter.woken = 0; //这是用于唤醒任务的标记
 	spin_lock(&klist_remove_lock);
-	list_add(&waiter.list, &klist_remove_waiters);
+	list_add(&waiter.list, &klist_remove_waiters);//双向链表，static LIST_HEAD(klist_remove_waiters);
 	spin_unlock(&klist_remove_lock);
 
 	klist_del(n);

@@ -174,9 +174,9 @@ static int kobject_add_internal(struct kobject *kobj)
 	/* join kset if set, use it as parent if we do not already have one */
 	if (kobj->kset) {
 		if (!parent)
-			parent = kobject_get(&kobj->kset->kobj);
+			parent = kobject_get(&kobj->kset->kobj);//如果kobj->parent为空，就将parent指向kobj->kset->kobj(基类)
 		kobj_kset_join(kobj);
-		kobj->parent = parent;
+		kobj->parent = parent;        
 	}
 
 	pr_debug("kobject: '%s' (%p): %s: parent: '%s', set: '%s'\n",
@@ -184,7 +184,7 @@ static int kobject_add_internal(struct kobject *kobj)
 		 parent ? kobject_name(parent) : "<NULL>",
 		 kobj->kset ? kobject_name(&kobj->kset->kobj) : "<NULL>");
 
-	error = create_dir(kobj);
+	error = create_dir(kobj);//它和sysfs相关，创建了一个目录
 	if (error) {
 		kobj_kset_leave(kobj);
 		kobject_put(parent);
@@ -336,7 +336,7 @@ static int kobject_add_varg(struct kobject *kobj, struct kobject *parent,
  * userspace is properly notified of this kobject's creation.
  */
 int kobject_add(struct kobject *kobj, struct kobject *parent,
-		const char *fmt, ...)
+		const char *fmt, ...)//device_add()中会调用
 {
 	va_list args;
 	int retval;
@@ -352,7 +352,7 @@ int kobject_add(struct kobject *kobj, struct kobject *parent,
 		return -EINVAL;
 	}
 	va_start(args, fmt);
-	retval = kobject_add_varg(kobj, parent, fmt, args);
+	retval = kobject_add_varg(kobj, parent, fmt, args);// 1、设置kobj名字 2、kobject_add_internal()
 	va_end(args);
 
 	return retval;
@@ -720,7 +720,7 @@ int kset_register(struct kset *k)
 	err = kobject_add_internal(&k->kobj);
 	if (err)
 		return err;
-	kobject_uevent(&k->kobj, KOBJ_ADD);
+	kobject_uevent(&k->kobj, KOBJ_ADD);//告诉用户空间有新朋友来啦，他叫什么什么名字
 	return 0;
 }
 
@@ -826,6 +826,7 @@ static struct kset *kset_create(const char *name,
  *
  * If the kset was not able to be created, NULL will be returned.
  */
+ //会在bus_register()中调用,bus/class/system/device/driver
 struct kset *kset_create_and_add(const char *name,
 				 struct kset_uevent_ops *uevent_ops,
 				 struct kobject *parent_kobj)
@@ -834,9 +835,11 @@ struct kset *kset_create_and_add(const char *name,
 	int error;
 
 	kset = kset_create(name, uevent_ops, parent_kobj);
+    //分配kset空间,根据传入参数,设置kset->kobj的名字，设置kset->uevent_ops,设置kset->kobj.ktype
 	if (!kset)
 		return NULL;
 	error = kset_register(kset);
+    //调用kobject_add_internal(&kset->kobj)
 	if (error) {
 		kfree(kset);
 		return NULL;

@@ -171,16 +171,16 @@ int __class_register(struct class *cls, struct lock_class_key *key)
 
 	/* set the default /sys/dev directory for devices of this class */
 	if (!cls->dev_kobj)
-		cls->dev_kobj = sysfs_dev_char_kobj;
+		cls->dev_kobj = sysfs_dev_char_kobj;///drivers/base/init.c的driver_init()中调用对应的子函数来初始化及注册
 
 #if defined(CONFIG_SYSFS_DEPRECATED) && defined(CONFIG_BLOCK)
 	/* let the block class directory show up in the root of sysfs */
 	if (cls != &block_class)
-		cp->class_subsys.kobj.kset = class_kset;
+		cp->class_subsys.kobj.kset = class_kset;///drivers/base/init.c的driver_init()中调用对应的子函数来初始化及注册
 #else
-	cp->class_subsys.kobj.kset = class_kset;
+	cp->class_subsys.kobj.kset = class_kset;///drivers/base/init.c的driver_init()中调用对应的子函数来初始化及注册
 #endif
-	cp->class_subsys.kobj.ktype = &class_ktype;
+	cp->class_subsys.kobj.ktype = &class_ktype;//静态变量
 	cp->class = cls;
 	cls->p = cp;
 

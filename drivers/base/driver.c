@@ -229,9 +229,9 @@ int driver_register(struct device_driver *drv)
 	    (drv->bus->remove && drv->remove) ||
 	    (drv->bus->shutdown && drv->shutdown))
 		printk(KERN_WARNING "Driver '%s' needs updating - please use "
-			"bus_type methods\n", drv->name);
+			"bus_type methods\n", drv->name);//这一堆都是吓人的，可以不用理它们
 
-	other = driver_find(drv->name, drv->bus);
+	other = driver_find(drv->name, drv->bus);//查找之前是否有被注册过
 	if (other) {
 		put_driver(other);
 		printk(KERN_ERR "Error: Driver '%s' is already registered, "
@@ -239,7 +239,7 @@ int driver_register(struct device_driver *drv)
 		return -EEXIST;
 	}
 
-	ret = bus_add_driver(drv);
+	ret = bus_add_driver(drv);//driver都在bus下面 ?
 	if (ret)
 		return ret;
 	ret = driver_add_groups(drv, drv->groups);

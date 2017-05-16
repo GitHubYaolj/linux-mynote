@@ -19,7 +19,7 @@
 struct klist_node;
 struct klist {
 	spinlock_t		k_lock;
-	struct list_head	k_list;
+	struct list_head	k_list;//双向链表,用来联系各节点及链表头
 	void			(*get)(struct klist_node *);
 	void			(*put)(struct klist_node *);
 } __attribute__ ((aligned (4)));
@@ -37,7 +37,7 @@ extern void klist_init(struct klist *k, void (*get)(struct klist_node *),
 		       void (*put)(struct klist_node *));
 
 struct klist_node {
-	void			*n_klist;	/* never access directly */
+	void			*n_klist;	/* never access directly *///随便用来指啥，但在我们的klist原语中是用来指向链表头的
 	struct list_head	n_node;
 	struct kref		n_ref;
 };

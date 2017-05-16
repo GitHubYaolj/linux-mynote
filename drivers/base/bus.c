@@ -609,7 +609,7 @@ static int add_probe_files(struct bus_type *bus)
 {
 	int retval;
 
-	retval = bus_create_file(bus, &bus_attr_drivers_probe);
+	retval = bus_create_file(bus, &bus_attr_drivers_probe);//函数上方的定义
 	if (retval)
 		goto out;
 
@@ -653,7 +653,7 @@ int bus_add_driver(struct device_driver *drv)
 	struct driver_private *priv;
 	int error = 0;
 
-	bus = bus_get(drv->bus);
+	bus = bus_get(drv->bus);//获得drv所在的bus
 	if (!bus)
 		return -EINVAL;
 
@@ -664,7 +664,7 @@ int bus_add_driver(struct device_driver *drv)
 		error = -ENOMEM;
 		goto out_put_bus;
 	}
-	klist_init(&priv->klist_devices, NULL, NULL);
+	klist_init(&priv->klist_devices, NULL, NULL);//金丝鸟笼
 	priv->driver = drv;
 	drv->p = priv;
 	priv->kobj.kset = bus->p->drivers_kset;//将driver的kset（priv->kobj.kset）设置为bus的drivers kset（bus->p->drivers_kset），这就意味着所有driver的kobject都位于bus->p->drivers_kset之下（寄/sys/bus/xxx/drivers目录下）
@@ -672,14 +672,16 @@ int bus_add_driver(struct device_driver *drv)
 				     "%s", drv->name);//在sysfs中注册driver的kobject，体现在/sys/bus/xxx/drivers/目录下，如/sys/bus/spi/drivers/spidev
 	if (error)
 		goto out_unregister;
-
+//    如果我们往里面写1：
+//    echo “1” > /sys/bus/wwhs_bus/drivers_autoprobe
+//    那么就会调用driver_attach(drv)
 	if (drv->bus->p->drivers_autoprobe) {
 		error = driver_attach(drv);
 		if (error)
 			goto out_unregister;
 	}
-	klist_add_tail(&priv->knode_bus, &bus->p->klist_drivers);
-	module_add_driver(drv->owner, drv);
+	klist_add_tail(&priv->knode_bus, &bus->p->klist_drivers);//驱动帅哥正式加入帅哥阵营
+	module_add_driver(drv->owner, drv);//将在在/sys/module创建相应的目录和文件
 
 	error = driver_create_file(drv, &driver_attr_uevent);//在sysfs的该driver的目录下，创建uevent attribute
 	if (error) {
@@ -901,18 +903,22 @@ int bus_register(struct bus_type *bus)
 		goto out;
 
 	retval = bus_create_file(bus, &bus_attr_uevent);//向bus目录下添加一个uevent attribute（如/sys/bus/spi/uevent）
-	if (retval)
+    //参考如下定义  static BUS_ATTR(uevent, S_IWUSR, NULL, bus_uevent_store);
+    //              #define BUS_ATTR(_name, _mode, _show, _store)        /
+    //              struct bus_attribute bus_attr_##_name = __ATTR(_name, _mode, _show, _store)
+    //会在/sys/bus/wwhs_bus目录之下创建一个叫uevent的文件。并且我们如果往这个文件中写入字符的时候会触发bus_uevent_store函数的执行
+    if (retval)
 		goto bus_uevent_fail;
 
 	priv->devices_kset = kset_create_and_add("devices", NULL,
-						 &priv->subsys.kobj);//向sysfs中添加对应的目录（如/sys/bus/spi/devices）
+						 &priv->subsys.kobj);//向sysfs中添加对应的目录（如/sys/bus/spi/devices）美女阵营
 	if (!priv->devices_kset) {
 		retval = -ENOMEM;
 		goto bus_devices_fail;
 	}
 
 	priv->drivers_kset = kset_create_and_add("drivers", NULL,
-						 &priv->subsys.kobj);//向sysfs中添加对应的目录（如/sys/bus/spi/drivers）
+						 &priv->subsys.kobj);//向sysfs中添加对应的目录（如/sys/bus/spi/drivers）帅哥阵营
 	if (!priv->drivers_kset) {
 		retval = -ENOMEM;
 		goto bus_drivers_fail;
