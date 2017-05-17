@@ -835,7 +835,7 @@ static struct file *__dentry_open(struct dentry *dentry, struct vfsmount *mnt,
 		goto cleanup_all;
 
 	if (!open && f->f_op)
-		open = f->f_op->open;
+		open = f->f_op->open;//这就是我们之前注册的wwhs_open()
 	if (open) {
 		error = open(inode, f);
 		if (error)
