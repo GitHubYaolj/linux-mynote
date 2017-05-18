@@ -827,7 +827,7 @@ static struct file *__dentry_open(struct dentry *dentry, struct vfsmount *mnt,
 	f->f_path.dentry = dentry;
 	f->f_path.mnt = mnt;
 	f->f_pos = 0;
-	f->f_op = fops_get(inode->i_fop);
+	f->f_op = fops_get(inode->i_fop);//如果是字符设备，此处获得def_chr_fops
 	file_move(f, &inode->i_sb->s_files);
 
 	error = security_dentry_open(f, cred);
@@ -835,7 +835,7 @@ static struct file *__dentry_open(struct dentry *dentry, struct vfsmount *mnt,
 		goto cleanup_all;
 
 	if (!open && f->f_op)
-		open = f->f_op->open;//这就是我们之前注册的wwhs_open()
+		open = f->f_op->open;//如果是字符设备，def_chr_fops中的chrdev_open http://www.docin.com/p-292302534.html
 	if (open) {
 		error = open(inode, f);
 		if (error)

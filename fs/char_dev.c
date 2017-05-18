@@ -544,7 +544,7 @@ static struct kobject *base_probe(dev_t dev, int *part, void *data)
 
 void __init chrdev_init(void)
 {
-	cdev_map = kobj_map_init(base_probe, &chrdevs_lock);
+	cdev_map = kobj_map_init(base_probe, &chrdevs_lock);//kobj_map里面内嵌了一个长度为255的结构体数组和一把锁
 	bdi_init(&directly_mappable_cdev_bdi);
 }
 
