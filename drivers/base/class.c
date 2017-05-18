@@ -184,7 +184,7 @@ int __class_register(struct class *cls, struct lock_class_key *key)
 	cp->class = cls;
 	cls->p = cp;
 
-	error = kset_register(&cp->class_subsys);
+	error = kset_register(&cp->class_subsys);// /sys/class/**classĿ¼
 	if (error) {
 		kfree(cp);
 		return error;

@@ -538,7 +538,7 @@ static void klist_children_put(struct klist_node *n)
  */
 void device_initialize(struct device *dev)
 {
-	dev->kobj.kset = devices_kset;
+	dev->kobj.kset = devices_kset;           // /sys/devices
 	kobject_init(&dev->kobj, &device_ktype);
 	INIT_LIST_HEAD(&dev->dma_pools);
 	init_MUTEX(&dev->sem);
@@ -594,7 +594,7 @@ static struct kobject *get_device_parent(struct device *dev,
 		 * in a "glue" directory to prevent namespace collisions.
 		 */
 		if (parent == NULL)
-			parent_kobj = virtual_device_parent(dev);
+			parent_kobj = virtual_device_parent(dev);// 获取/sys/devices/virtual目录对应的kobj
 		else if (parent->class)
 			return &parent->kobj;
 		else
@@ -616,7 +616,7 @@ static struct kobject *get_device_parent(struct device *dev,
 		if (!k)
 			return NULL;
 		k->kset = &dev->class->p->class_dirs;
-		retval = kobject_add(k, parent_kobj, "%s", dev->class->name);
+		retval = kobject_add(k, parent_kobj, "%s", dev->class->name);// sys/devices/virtual/wwhsclass目录
 		if (retval < 0) {
 			kobject_put(k);
 			return NULL;
@@ -884,7 +884,7 @@ int device_add(struct device *dev)
 	pr_debug("device: '%s': %s\n", dev_name(dev), __func__);
 
 	parent = get_device(dev->parent);
-	setup_parent(dev, parent);
+	setup_parent(dev, parent); // 如果dev设置了class，会建立目录/sys/devices/virtual/wwhsclass
 
 	/* use parent numa_node */
 	if (parent)
@@ -892,7 +892,7 @@ int device_add(struct device *dev)
 
 	/* first, register with generic layer. */
 	/* we require the name to be set before, and pass NULL */
-	error = kobject_add(&dev->kobj, dev->kobj.parent, NULL);
+	error = kobject_add(&dev->kobj, dev->kobj.parent, NULL);// 建立目录/sys/devices/virtual/wwhsclass/wwhs
 	if (error)
 		goto Error;
 
@@ -1196,10 +1196,10 @@ int __init devices_init(void)
 	dev_kobj = kobject_create_and_add("dev", NULL);
 	if (!dev_kobj)
 		goto dev_kobj_err;
-	sysfs_dev_block_kobj = kobject_create_and_add("block", dev_kobj);
+	sysfs_dev_block_kobj = kobject_create_and_add("block", dev_kobj);// /sys/dev 目录下
 	if (!sysfs_dev_block_kobj)
 		goto block_kobj_err;
-	sysfs_dev_char_kobj = kobject_create_and_add("char", dev_kobj);
+	sysfs_dev_char_kobj = kobject_create_and_add("char", dev_kobj);// /sys/dev 目录下
 	if (!sysfs_dev_char_kobj)
 		goto char_kobj_err;
 
