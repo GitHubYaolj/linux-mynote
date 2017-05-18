@@ -969,12 +969,12 @@ int get_sb_single(struct file_system_type *fs_type,
 	struct super_block *s;
 	int error;
 
-	s = sget(fs_type, compare_single, set_anon_super, NULL);
+	s = sget(fs_type, compare_single, set_anon_super, NULL);//得到一个超级块 find or create a superblock
 	if (IS_ERR(s))
 		return PTR_ERR(s);
 	if (!s->s_root) {
 		s->s_flags = flags;
-		error = fill_super(s, data, flags & MS_SILENT ? 1 : 0);
+		error = fill_super(s, data, flags & MS_SILENT ? 1 : 0);//sysfs_fill_super()
 		if (error) {
 			deactivate_locked_super(s);
 			return error;
@@ -988,6 +988,14 @@ int get_sb_single(struct file_system_type *fs_type,
 
 EXPORT_SYMBOL(get_sb_single);
 
+
+/*传入vfs_kern_mount函数的形参type定义如下:
+static struct file_system_type sysfs_fs_type = {
+	.name		= "sysfs",
+	.get_sb		= sysfs_get_sb,
+	.kill_sb	= kill_anon_super,
+};
+*/
 struct vfsmount *
 vfs_kern_mount(struct file_system_type *type, int flags, const char *name, void *data)
 {
@@ -999,7 +1007,7 @@ vfs_kern_mount(struct file_system_type *type, int flags, const char *name, void 
 		return ERR_PTR(-ENODEV);
 
 	error = -ENOMEM;
-	mnt = alloc_vfsmnt(name);
+	mnt = alloc_vfsmnt(name);//分配一块内存然后初始化
 	if (!mnt)
 		goto out;
 
@@ -1013,7 +1021,7 @@ vfs_kern_mount(struct file_system_type *type, int flags, const char *name, void 
 			goto out_free_secdata;
 	}
 
-	error = type->get_sb(type, flags, name, data, mnt);
+	error = type->get_sb(type, flags, name, data, mnt);//调用get_sb_single(),得到一个超级块
 	if (error < 0)
 		goto out_free_secdata;
 	BUG_ON(!mnt->mnt_sb);

@@ -1095,7 +1095,7 @@ struct dentry * d_alloc_root(struct inode * root_inode)
 	struct dentry *res = NULL;
 
 	if (root_inode) {
-		static const struct qstr name = { .name = "/", .len = 1 };
+		static const struct qstr name = { .name = "/", .len = 1 };//“/”，伟大的”/”原来就在这里
 
 		res = d_alloc(NULL, &name);
 		if (res) {
@@ -2272,12 +2272,12 @@ static void __init dcache_init(void)
 	 * of the dcache. 
 	 */
 	dentry_cache = KMEM_CACHE(dentry,
-		SLAB_RECLAIM_ACCOUNT|SLAB_PANIC|SLAB_MEM_SPREAD);
+		SLAB_RECLAIM_ACCOUNT|SLAB_PANIC|SLAB_MEM_SPREAD);//创建目录项缓存
 	
-	register_shrinker(&dcache_shrinker);
+	register_shrinker(&dcache_shrinker);//压缩机
 
 	/* Hash may have been set up in dcache_init_early */
-	if (!hashdist)
+	if (!hashdist) // 保证只初始化一次
 		return;
 
 	dentry_hashtable =
@@ -2299,12 +2299,13 @@ struct kmem_cache *names_cachep __read_mostly;
 
 EXPORT_SYMBOL(d_genocide);
 
+//上电以后，我们的CPU从一个固定的地址取下代码然后一步一步执行，经过千辛万苦，终于跑到了一个叫 start_kernel的地方，然后这个函数又调用了vfs_caches_init_early
 void __init vfs_caches_init_early(void)
 {
-	dcache_init_early();
-	inode_init_early();
+	dcache_init_early();// dentry_hashtable
+	inode_init_early(); // inode_hashtable
 }
-
+//start_kernel又调用了vfs_caches_init()
 void __init vfs_caches_init(unsigned long mempages)
 {
 	unsigned long reserve;
@@ -2318,10 +2319,10 @@ void __init vfs_caches_init(unsigned long mempages)
 	names_cachep = kmem_cache_create("names_cache", PATH_MAX, 0,
 			SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL);
 
-	dcache_init();
-	inode_init();
-	files_init(mempages);
-	mnt_init();
+	dcache_init();//创建 目录项缓存 ,已创建dentry哈希表
+	inode_init(); //创建 inode索引点缓存，已创建inode哈希表
+	files_init(mempages);//创建了一块名为filp_cachep的缓存
+	mnt_init(); // 会调用sysfs_init()
 	bdev_cache_init();
 	chrdev_init();
 }

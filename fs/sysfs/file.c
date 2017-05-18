@@ -487,7 +487,7 @@ void sysfs_notify(struct kobject *k, const char *dir, const char *attr)
 EXPORT_SYMBOL_GPL(sysfs_notify);
 
 const struct file_operations sysfs_file_operations = {
-	.read		= sysfs_read_file,
+	.read		= sysfs_read_file, // copy_to_user
 	.write		= sysfs_write_file,
 	.llseek		= generic_file_llseek,
 	.open		= sysfs_open_file,

@@ -48,13 +48,13 @@ static int sysfs_fill_super(struct super_block *sb, void *data, int silent)
 	sb->s_blocksize = PAGE_CACHE_SIZE;
 	sb->s_blocksize_bits = PAGE_CACHE_SHIFT;
 	sb->s_magic = SYSFS_MAGIC;
-	sb->s_op = &sysfs_ops;
+	sb->s_op = &sysfs_ops;  // 
 	sb->s_time_gran = 1;
 	sysfs_sb = sb;
 
 	/* get root inode, initialize and unlock it */
 	mutex_lock(&sysfs_mutex);
-	inode = sysfs_get_inode(&sysfs_root);
+	inode = sysfs_get_inode(&sysfs_root); //sysfs_init_inode()
 	mutex_unlock(&sysfs_mutex);
 	if (!inode) {
 		pr_debug("sysfs: could not get root inode\n");
@@ -62,7 +62,7 @@ static int sysfs_fill_super(struct super_block *sb, void *data, int silent)
 	}
 
 	/* instantiate and link root dentry */
-	root = d_alloc_root(inode);
+	root = d_alloc_root(inode); //“/”，伟大的”/”原来就在这里面
 	if (!root) {
 		pr_debug("%s: could not get root dentry!\n",__func__);
 		iput(inode);
@@ -91,17 +91,17 @@ int __init sysfs_init(void)
 
 	sysfs_dir_cachep = kmem_cache_create("sysfs_dir_cache",
 					      sizeof(struct sysfs_dirent),
-					      0, 0, NULL);
+					      0, 0, NULL);//又创建了一块缓存
 	if (!sysfs_dir_cachep)
 		goto out;
 
-	err = sysfs_inode_init();
+	err = sysfs_inode_init();//调用bdi_init()  backing_dev_info 后台设备信息结构体
 	if (err)
 		goto out_err;
-
-	err = register_filesystem(&sysfs_fs_type);
+    //将传入的文件系统对象链入一个叫file_systems的全局文件系统对象链表中
+	err = register_filesystem(&sysfs_fs_type);//sruct file_system_type 文件系统对象结构体
 	if (!err) {
-		sysfs_mount = kern_mount(&sysfs_fs_type);
+		sysfs_mount = kern_mount(&sysfs_fs_type);// vfs_kern_mount() 分配一块内存然后初始化
 		if (IS_ERR(sysfs_mount)) {
 			printk(KERN_ERR "sysfs: could not mount!\n");
 			err = PTR_ERR(sysfs_mount);

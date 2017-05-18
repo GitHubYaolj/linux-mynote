@@ -143,7 +143,7 @@ static int sysfs_count_nlink(struct sysfs_dirent *sd)
 	return nr + 2;
 }
 
-static void sysfs_init_inode(struct sysfs_dirent *sd, struct inode *inode)
+static void sysfs_init_inode(struct sysfs_dirent *sd, struct inode *inode)//各种各样的对象操作集全在这里
 {
 	struct bin_attribute *bin_attr;
 
@@ -173,7 +173,7 @@ static void sysfs_init_inode(struct sysfs_dirent *sd, struct inode *inode)
 		break;
 	case SYSFS_KOBJ_ATTR:
 		inode->i_size = PAGE_SIZE;
-		inode->i_fop = &sysfs_file_operations;
+		inode->i_fop = &sysfs_file_operations;  // .read .write .lseek
 		break;
 	case SYSFS_KOBJ_BIN_ATTR:
 		bin_attr = sd->s_bin_attr.bin_attr;
@@ -210,7 +210,7 @@ struct inode * sysfs_get_inode(struct sysfs_dirent *sd)
 
 	inode = iget_locked(sysfs_sb, sd->s_ino);
 	if (inode && (inode->i_state & I_NEW))
-		sysfs_init_inode(sd, inode);
+		sysfs_init_inode(sd, inode); ////各种各样的对象操作集全在这里赋值
 
 	return inode;
 }
