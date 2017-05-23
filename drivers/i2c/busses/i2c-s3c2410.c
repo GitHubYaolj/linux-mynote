@@ -479,7 +479,7 @@ static int s3c24xx_i2c_doxfer(struct s3c24xx_i2c *i2c,
 
 	if (i2c->suspended)
 		return -EIO;
-
+//每隔1ms查看一次i2c总线状态，timeout是400ms，如果在这期间总线状态不忙，则返回零。否则返回-ETIMEDOUT
 	ret = s3c24xx_i2c_set_master(i2c);
 	if (ret != 0) {
 		dev_err(i2c->dev, "cannot get bus (error %d)\n", ret);
@@ -488,7 +488,7 @@ static int s3c24xx_i2c_doxfer(struct s3c24xx_i2c *i2c,
 	}
 
 	spin_lock_irq(&i2c->lock);
-
+//将要发送的消息和其他信息付给i2c->msg和其他变量，并将状态设置为STATE_START
 	i2c->msg     = msgs;
 	i2c->msg_num = num;
 	i2c->msg_ptr = 0;
@@ -782,7 +782,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
-	i2c = kzalloc(sizeof(struct s3c24xx_i2c), GFP_KERNEL);
+	i2c = kzalloc(sizeof(struct s3c24xx_i2c), GFP_KERNEL);//给s3c24xx_i2c结构体申请空间
 	if (!i2c) {
 		dev_err(&pdev->dev, "no memory for state\n");
 		return -ENOMEM;
@@ -847,7 +847,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
 	i2c->adap.dev.parent = &pdev->dev;
 
 	/* initialise the i2c controller */
-
+    /*s3c24xx_i2c结构体变量i2c的必要的信息都填充完了以后，开始进行初始化*/  
 	ret = s3c24xx_i2c_init(i2c);
 	if (ret != 0)
 		goto err_iomap;
@@ -883,8 +883,10 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
 	 */
 
 	i2c->adap.nr = pdata->bus_num;
-
-	ret = i2c_add_numbered_adapter(&i2c->adap);
+    //看到了吧？下面调用了i2c-core中的i2c_add_adapter函数来添加一个i2c控制器  
+    //i2c_add_numbered_adapter和i2c_add_adapter的区别在于前者用来添加一个在CPU内  
+    //部集成的适配器，而后者用来添加一个CPU外部的适配器。显然这里应该用前者。
+	ret = i2c_add_numbered_adapter(&i2c->adap);//i2c_register_adapter(adap)
 	if (ret < 0) {
 		dev_err(&pdev->dev, "failed to add bus to i2c core\n");
 		goto err_cpufreq;
