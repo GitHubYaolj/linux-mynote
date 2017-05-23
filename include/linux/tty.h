@@ -189,7 +189,7 @@ struct tty_port_operations {
 };
 	
 struct tty_port {
-	struct tty_struct	*tty;		/* Back pointer */
+	struct tty_struct	*tty;		/* Back pointer */ //串口接收中断处理函数需要通过tty将接收到的数据传递给行规则层
 	const struct tty_port_operations *ops;	/* Port operations */
 	spinlock_t		lock;		/* Lock protecting tty field */
 	int			blocked_open;	/* Waiting to open */

@@ -188,17 +188,17 @@ struct device;
  * done on the physical hardware.
  */
 struct uart_ops {
-	unsigned int	(*tx_empty)(struct uart_port *);
-	void		(*set_mctrl)(struct uart_port *, unsigned int mctrl);
-	unsigned int	(*get_mctrl)(struct uart_port *);
-	void		(*stop_tx)(struct uart_port *);
-	void		(*start_tx)(struct uart_port *);
-	void		(*send_xchar)(struct uart_port *, char ch);
-	void		(*stop_rx)(struct uart_port *);
-	void		(*enable_ms)(struct uart_port *);
-	void		(*break_ctl)(struct uart_port *, int ctl);
-	int		(*startup)(struct uart_port *);
-	void		(*shutdown)(struct uart_port *);
+	unsigned int	(*tx_empty)(struct uart_port *);/* 串口的Tx FIFO缓存是否为空 */
+	void		(*set_mctrl)(struct uart_port *, unsigned int mctrl);/* 设置串口modem控制 */
+	unsigned int	(*get_mctrl)(struct uart_port *);/* 获取串口modem控制 */
+	void		(*stop_tx)(struct uart_port *);/* 禁止串口发送数据 */
+	void		(*start_tx)(struct uart_port *);/* 使能串口发送数据 */
+	void		(*send_xchar)(struct uart_port *, char ch);/* 发送xChar */
+	void		(*stop_rx)(struct uart_port *);/* 禁止串口接收数据 */
+	void		(*enable_ms)(struct uart_port *);/* 使能modem的状态信号 */
+	void		(*break_ctl)(struct uart_port *, int ctl);/* 设置break信号 */
+	int		(*startup)(struct uart_port *);/* 启动串口,应用程序打开串口设备文件时,该函数会被调用 */
+	void		(*shutdown)(struct uart_port *);/* 关闭串口,应用程序关闭串口设备文件时,该函数会被调用 */
 	void		(*flush_buffer)(struct uart_port *);
 	void		(*set_termios)(struct uart_port *, struct ktermios *new,
 				       struct ktermios *old);
@@ -210,22 +210,22 @@ struct uart_ops {
 	/*
 	 * Return a string describing the type of the port
 	 */
-	const char *(*type)(struct uart_port *);
+	const char *(*type)(struct uart_port *);/* 返回一描述串口类型的字符串 */
 
 	/*
 	 * Release IO and memory resources used by the port.
 	 * This includes iounmap if necessary.
 	 */
-	void		(*release_port)(struct uart_port *);
+	void		(*release_port)(struct uart_port *);/* 释放串口已申请的IO端口/IO内存资源,必要时还需iounmap */
 
 	/*
 	 * Request IO and memory resources used by the port.
 	 * This includes iomapping the port if necessary.
 	 */
-	int		(*request_port)(struct uart_port *);
-	void		(*config_port)(struct uart_port *, int);
-	int		(*verify_port)(struct uart_port *, struct serial_struct *);
-	int		(*ioctl)(struct uart_port *, unsigned int, unsigned long);
+	int		(*request_port)(struct uart_port *);/* 申请必要的IO端口/IO内存资源,必要时还可以重新映射串口端口 */
+	void		(*config_port)(struct uart_port *, int);/* 执行串口所需的自动配置 */
+	int		(*verify_port)(struct uart_port *, struct serial_struct *);/* 核实新串口的信息 */
+	int		(*ioctl)(struct uart_port *, unsigned int, unsigned long);/* IO控制 */
 #ifdef CONFIG_CONSOLE_POLL
 	void	(*poll_put_char)(struct uart_port *, unsigned char);
 	int		(*poll_get_char)(struct uart_port *);
@@ -240,34 +240,34 @@ struct uart_icount {
 	__u32	dsr;
 	__u32	rng;
 	__u32	dcd;
-	__u32	rx;
-	__u32	tx;
-	__u32	frame;
-	__u32	overrun;
-	__u32	parity;
-	__u32	brk;
+	__u32	rx;      /* 接受字符计数 */
+	__u32	tx;      /* 发送字符计数 */
+	__u32	frame;   /* 帧错误计数 */
+	__u32	overrun; /* Rx FIFO溢出计数 */
+	__u32	parity;  /* 帧校验错误计数 */
+	__u32	brk;     /* break计数 */
 	__u32	buf_overrun;
 };
 
 typedef unsigned int __bitwise__ upf_t;
 
 struct uart_port {
-	spinlock_t		lock;			/* port lock */
-	unsigned long		iobase;			/* in/out[bwl] */
-	unsigned char __iomem	*membase;		/* read/write[bwl] */
+	spinlock_t		lock;			/* port lock */                /* 串口端口锁 */
+	unsigned long		iobase;			/* in/out[bwl] */          /* IO端口基地址 */
+	unsigned char __iomem	*membase;		/* read/write[bwl] */  /* IO内存基地址,经映射(如ioremap)后的IO内存虚拟基地址 */
 	unsigned int		(*serial_in)(struct uart_port *, int);
 	void			(*serial_out)(struct uart_port *, int, int);
-	unsigned int		irq;			/* irq number */
-	unsigned int		uartclk;		/* base uart clock */
-	unsigned int		fifosize;		/* tx fifo size */
-	unsigned char		x_char;			/* xon/xoff char */
-	unsigned char		regshift;		/* reg offset shift */
-	unsigned char		iotype;			/* io access style */
+	unsigned int		irq;			/* irq number */           /* 中断号 */
+	unsigned int		uartclk;		/* base uart clock */      /* 串口时钟 */
+	unsigned int		fifosize;		/* tx fifo size */         /* 串口FIFO缓冲大小 */
+	unsigned char		x_char;			/* xon/xoff char */        /* xon/xoff字符 */
+	unsigned char		regshift;		/* reg offset shift */     /* 寄存器位移 */
+	unsigned char		iotype;			/* io access style */      /* IO访问方式 */
 	unsigned char		unused1;
 
-#define UPIO_PORT		(0)
+#define UPIO_PORT		(0)                                        /* IO端口 */
 #define UPIO_HUB6		(1)
-#define UPIO_MEM		(2)
+#define UPIO_MEM		(2)                                        /* IO内存 */
 #define UPIO_MEM32		(3)
 #define UPIO_AU			(4)			/* Au1x00 type IO */
 #define UPIO_TSI		(5)			/* Tsi108/109 type IO */
@@ -279,7 +279,7 @@ struct uart_port {
 	struct uart_info	*info;			/* pointer to parent info */
 	struct uart_icount	icount;			/* statistics */
 
-	struct console		*cons;			/* struct console, if any */
+	struct console		*cons;			/* struct console, if any */ /* console结构体 */
 #if defined(CONFIG_SERIAL_CORE_CONSOLE) || defined(SUPPORT_SYSRQ)
 	unsigned long		sysrq;			/* sysrq timeout */
 #endif
@@ -313,18 +313,18 @@ struct uart_port {
 #define UPF_CHANGE_MASK		((__force upf_t) (0x17fff))
 #define UPF_USR_MASK		((__force upf_t) (UPF_SPD_MASK|UPF_LOW_LATENCY))
 
-	unsigned int		mctrl;			/* current modem ctrl settings */
-	unsigned int		timeout;		/* character-based timeout */
-	unsigned int		type;			/* port type */
-	const struct uart_ops	*ops;
+	unsigned int		mctrl;			/* current modem ctrl settings */ /* 当前的moden设置 */
+	unsigned int		timeout;		/* character-based timeout */     /* character-based timeout */
+	unsigned int		type;			/* port type */                   /* 端口类型 */
+	const struct uart_ops	*ops;                                         /* 串口端口操作函数集 */
 	unsigned int		custom_divisor;
 	unsigned int		line;			/* port index */
-	resource_size_t		mapbase;		/* for ioremap */
-	struct device		*dev;			/* parent device */
+	resource_size_t		mapbase;		/* for ioremap */                 /* IO内存物理基地址，可用于ioremap */
+	struct device		*dev;			/* parent device */               /* 父设备 */
 	unsigned char		hub6;			/* this should be in the 8250 driver */
 	unsigned char		suspended;
 	unsigned char		unused[2];
-	void			*private_data;		/* generic platform data pointer */
+	void			*private_data;		/* generic platform data pointer */   /* 端口私有数据,一般为platform数据指针 */
 };
 
 /*
@@ -337,7 +337,7 @@ typedef unsigned int __bitwise__ uif_t;
 
 struct uart_info {
 	struct tty_port		port;
-	struct circ_buf		xmit;
+	struct circ_buf		xmit; //用户空间程序通过串口发送数据时，上层驱动将用户数据保存在xmit,串口发送中断处理函数就是通过xmit获取到用户数据并将它们发送出去
 	uif_t			flags;
 
 /*
@@ -391,7 +391,7 @@ struct uart_driver {
 	const char		*dev_name;
 	int			 major;
 	int			 minor;
-	int			 nr;
+	int			 nr;          /* 该uart_driver支持的串口个数(最大) */
 	struct console		*cons;
 
 	/*
