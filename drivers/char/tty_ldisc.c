@@ -713,9 +713,9 @@ void tty_ldisc_release(struct tty_struct *tty, struct tty_struct *o_tty)
 void tty_ldisc_init(struct tty_struct *tty)
 {
 	struct tty_ldisc ld;
-	if (tty_ldisc_get(N_TTY, &ld) < 0)
+	if (tty_ldisc_get(N_TTY, &ld) < 0)//设置线路规程N_TTY
 		panic("n_tty: init_tty");
-	tty_ldisc_assign(tty, &ld);
+	tty_ldisc_assign(tty, &ld);       //tty->ldisc = *ld;
 }
 
 void tty_ldisc_begin(void)

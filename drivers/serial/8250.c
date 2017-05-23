@@ -2686,7 +2686,7 @@ serial8250_register_ports(struct uart_driver *drv, struct device *dev)
 		up->cur_iotype = 0xFF;
 	}
 
-	serial8250_isa_init_ports();
+	serial8250_isa_init_ports();//…Ë÷√port£¨ops Œ™ struct uart_ops serial8250_pops
 
 	for (i = 0; i < nr_uarts; i++) {
 		struct uart_8250_port *up = &serial8250_ports[i];
@@ -3181,7 +3181,7 @@ static int __init serial8250_init(void)
 
 	serial8250_register_ports(&serial8250_reg, &serial8250_isa_devs->dev);
 
-	ret = platform_driver_register(&serial8250_isa_driver);
+	ret = platform_driver_register(&serial8250_isa_driver);//probe ÷– serial8250_register_port()
 	if (ret == 0)
 		goto out;
 

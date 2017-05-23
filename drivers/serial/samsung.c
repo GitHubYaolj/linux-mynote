@@ -884,13 +884,13 @@ static struct uart_ops s3c24xx_serial_ops = {
 
 
 static struct uart_driver s3c24xx_uart_drv = {
-	.owner		= THIS_MODULE,
-	.dev_name	= "tq2440_serial",
+	.owner		= THIS_MODULE,              /* 拥有该uart_driver的模块,一般为THIS_MODULE */
+	.dev_name	= "tq2440_serial",          /* 串口设备名 */
 	.nr		= CONFIG_SERIAL_SAMSUNG_UARTS,
 	.cons		= S3C24XX_SERIAL_CONSOLE,
-	.driver_name	= S3C24XX_SERIAL_NAME,
-	.major		= S3C24XX_SERIAL_MAJOR,
-	.minor		= S3C24XX_SERIAL_MINOR,
+	.driver_name	= S3C24XX_SERIAL_NAME,  /* 串口驱动名，串口设备文件名以驱动名为基础 */
+	.major		= S3C24XX_SERIAL_MAJOR,     /* 主设备号 */
+	.minor		= S3C24XX_SERIAL_MINOR,     /* 次设备号 */
 };
 
 static struct s3c24xx_uart_port s3c24xx_serial_ports[CONFIG_SERIAL_SAMSUNG_UARTS] = {

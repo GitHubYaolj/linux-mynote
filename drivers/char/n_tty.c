@@ -1990,7 +1990,7 @@ static ssize_t n_tty_write(struct tty_struct *tty, struct file *file,
 				tty->ops->flush_chars(tty);
 		} else {
 			while (nr > 0) {
-				c = tty->ops->write(tty, b, nr);
+				c = tty->ops->write(tty, b, nr); // tty->ops ¸³ÖµÎªÁËdriver->ops£¬¼´uart_ops
 				if (c < 0) {
 					retval = c;
 					goto break_out;

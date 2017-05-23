@@ -1387,7 +1387,7 @@ struct tty_struct *tty_init_dev(struct tty_driver *driver, int idx,
 	tty = alloc_tty_struct();
 	if (!tty)
 		goto fail_no_mem;
-	initialize_tty_struct(tty, driver, idx);
+	initialize_tty_struct(tty, driver, idx);//设置线路规程N_TTY ,找到了N_TTY，这是默认的线路规程
 
 	retval = tty_driver_install_tty(driver, tty);
 	if (retval < 0) {
@@ -1402,7 +1402,7 @@ struct tty_struct *tty_init_dev(struct tty_driver *driver, int idx,
 	 * to decrement the use counts, as release_tty doesn't care.
 	 */
 
-	retval = tty_ldisc_setup(tty, tty->link);
+	retval = tty_ldisc_setup(tty, tty->link);//tty_ldisc_open()
 	if (retval)
 		goto release_mem_out;
 	return tty;
@@ -1807,7 +1807,7 @@ retry_open:
 		return -ENODEV;
 	}
 
-	driver = get_tty_driver(device, &index);
+	driver = get_tty_driver(device, &index);//根据device得到index和driver
 	if (!driver) {
 		mutex_unlock(&tty_mutex);
 		return -ENODEV;
@@ -1828,7 +1828,7 @@ got_driver:
 		if (retval)
 			tty = ERR_PTR(retval);
 	} else
-		tty = tty_init_dev(driver, index, 0);
+		tty = tty_init_dev(driver, index, 0);//初始化tty_struct
 
 	mutex_unlock(&tty_mutex);
 	tty_driver_kref_put(driver);
@@ -2763,7 +2763,7 @@ void initialize_tty_struct(struct tty_struct *tty,
 	memset(tty, 0, sizeof(struct tty_struct));
 	kref_init(&tty->kref);
 	tty->magic = TTY_MAGIC;
-	tty_ldisc_init(tty);
+	tty_ldisc_init(tty);  //tty->ldisc = *ld; N_TTY ;struct tty_ldisc_ops tty_ldisc_N_TTY
 	tty->session = NULL;
 	tty->pgrp = NULL;
 	tty->overrun_time = jiffies;
@@ -2783,7 +2783,7 @@ void initialize_tty_struct(struct tty_struct *tty,
 	INIT_WORK(&tty->SAK_work, do_SAK_work);
 
 	tty->driver = driver;
-	tty->ops = driver->ops;
+	tty->ops = driver->ops;//uart_driver
 	tty->index = idx;
 	tty_line_name(driver, idx, tty->name);
 }

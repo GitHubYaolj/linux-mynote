@@ -69,6 +69,7 @@ static void uart_change_pm(struct uart_state *state, int pm_state);
  * This routine is used by the interrupt handler to schedule processing in
  * the software interrupt portion of the driver.
  */
+ //唤醒上层因向串口端口写数据而阻塞的进程，通常在串口发送中断处理函数中调用该函数
 void uart_write_wakeup(struct uart_port *port)
 {
 	struct uart_info *info = port->info;
@@ -493,7 +494,7 @@ static void uart_flush_chars(struct tty_struct *tty)
 static int
 uart_write(struct tty_struct *tty, const unsigned char *buf, int count)
 {
-	struct uart_state *state = tty->driver_data;
+	struct uart_state *state = tty->driver_data; //uart_open()中建立state与tty_driver_data的关系
 	struct uart_port *port;
 	struct circ_buf *circ;
 	unsigned long flags;
@@ -1611,7 +1612,7 @@ static int uart_open(struct tty_struct *tty, struct file *filp)
 	 * side-effect that it delays the action of uart_hangup, so we can
 	 * guarantee that info->port.tty will always contain something reasonable.
 	 */
-	state = uart_get(drv, line);
+	state = uart_get(drv, line);//得到state，将此state赋值给tty->driver_data
 	if (IS_ERR(state)) {
 		retval = PTR_ERR(state);
 		goto fail;
@@ -1622,7 +1623,7 @@ static int uart_open(struct tty_struct *tty, struct file *filp)
 	 * uart_close() will decrement the driver module use count.
 	 * Any failures from here onwards should not touch the count.
 	 */
-	tty->driver_data = state;
+	tty->driver_data = state;//重要,在uart_ops中的函数，都会通过tty_struct的driver_data得到state
 	state->port->info = &state->info;
 	tty->low_latency = (state->port->flags & UPF_LOW_LATENCY) ? 1 : 0;
 	tty->alt_speed = 0;
@@ -1798,6 +1799,7 @@ static const struct file_operations uart_proc_fops = {
  *	@count: number of characters in string to write
  *	@write: function to write character to port
  */
+ //向串口端口写一控制台信息
 void uart_console_write(struct uart_port *port, const char *s,
 			unsigned int count,
 			void (*putchar)(struct uart_port *, int))
@@ -1981,7 +1983,7 @@ static int serial_match_port(struct device *dev, void *data)
 
 	return dev->devt == devt; /* Actually, only one tty per port */
 }
-
+//挂起特定的串口端口
 int uart_suspend_port(struct uart_driver *drv, struct uart_port *port)
 {
 	struct uart_state *state = drv->state + port->line;
@@ -2319,6 +2321,7 @@ static const struct tty_operations uart_ops = {
  *	drv->port should be NULL, and the per-port structures should be
  *	registered using uart_add_one_port after this call has succeeded.
  */
+ //将串口驱动uart_driver注册到内核(串口核心层)中，通常在模块初始化函数调用该函数。
 int uart_register_driver(struct uart_driver *drv)
 {
 	struct tty_driver *normal = NULL;
@@ -2330,7 +2333,7 @@ int uart_register_driver(struct uart_driver *drv)
 	 * Maybe we should be using a slab cache for this, especially if
 	 * we have a large number of ports to handle.
 	 */
-	drv->state = kzalloc(sizeof(struct uart_state) * drv->nr, GFP_KERNEL);
+	drv->state = kzalloc(sizeof(struct uart_state) * drv->nr, GFP_KERNEL);//分配nr个uart_state的空间
 	retval = -ENOMEM;
 	if (!drv->state)
 		goto out;
@@ -2415,6 +2418,7 @@ struct tty_driver *uart_console_device(struct console *co, int *index)
  *	level uart drivers to expand uart_port, rather than having yet
  *	more levels of structures.
  */
+ //为串口驱动添加一个串口端口，通常在探测到设备后(驱动的设备probe方法)调用该函数
 int uart_add_one_port(struct uart_driver *drv, struct uart_port *port)
 {
 	struct uart_state *state;
