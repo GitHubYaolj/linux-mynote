@@ -336,7 +336,7 @@ static void __init tq2440_map_io(void)
 {
 	s3c24xx_init_io(tq2440_iodesc, ARRAY_SIZE(tq2440_iodesc));
 	s3c24xx_init_clocks(12000000);
-	s3c24xx_init_uarts(tq2440_uartcfgs, ARRAY_SIZE(tq2440_uartcfgs));
+	s3c24xx_init_uarts(tq2440_uartcfgs, ARRAY_SIZE(tq2440_uartcfgs));//(cpu->init_uarts)(cfg, no);s3c2410_init_uarts()构建s3c24xx_uart_devs[]数组(platform_device)
 }
 
 static void __init tq2440_machine_init(void)
