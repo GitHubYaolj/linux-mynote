@@ -1587,7 +1587,7 @@ static struct uart_state *uart_get(struct uart_driver *drv, int line)
  * to set base addresses/ports/types.  This will allow us to
  * get rid of a certain amount of extra tests.
  */
-static int uart_open(struct tty_struct *tty, struct file *filp)
+static int uart_open(struct tty_struct *tty, struct file *filp)//这里会初始化state->info的环形缓冲区
 {
 	struct uart_driver *drv = (struct uart_driver *)tty->driver->driver_state;
 	struct uart_state *state;
@@ -1648,7 +1648,7 @@ static int uart_open(struct tty_struct *tty, struct file *filp)
 	/*
 	 * Start up the serial port.
 	 */
-	retval = uart_startup(state, 0);
+	retval = uart_startup(state, 0);  //初始化state->info的环形缓冲区
 
 	/*
 	 * If we succeeded, wait until the port is ready.
@@ -2338,7 +2338,7 @@ int uart_register_driver(struct uart_driver *drv)
 	if (!drv->state)
 		goto out;
 
-	normal  = alloc_tty_driver(drv->nr);
+	normal  = alloc_tty_driver(drv->nr);//drv->nr为CONFIG_SERIAL_SAMSUNG_UARTS,赋值给normal->num
 	if (!normal)
 		goto out;
 
@@ -2430,7 +2430,7 @@ int uart_add_one_port(struct uart_driver *drv, struct uart_port *port)
 	if (port->line >= drv->nr)
 		return -EINVAL;
 
-	state = drv->state + port->line;
+	state = drv->state + port->line; //static struct s3c24xx_uart_port s3c24xx_serial_ports里设置了port->line
 
 	mutex_lock(&port_mutex);
 	mutex_lock(&state->mutex);
