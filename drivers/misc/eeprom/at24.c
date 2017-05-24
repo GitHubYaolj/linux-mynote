@@ -425,10 +425,10 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
 	int err;
 	unsigned i, num_addresses;
 	kernel_ulong_t magic;
-
+    /* 获取板级设备信息*/
 	if (client->dev.platform_data) {
 		chip = *(struct at24_platform_data *)client->dev.platform_data;
-	} else {
+	} else {/* 没有板级设备信息，也没有driver_data，直接出错*/
 		if (!id->driver_data) {
 			err = -ENODEV;
 			goto err_out;
@@ -447,7 +447,8 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
 		chip.setup = NULL;
 		chip.context = NULL;
 	}
-
+    /* 检查参数， 
+            byte_len和page_size必须为2的幂，不是则打印警告*/
 	if (!is_power_of_2(chip.byte_len))
 		dev_warn(&client->dev,
 			"byte_len looks suspicious (no power of 2)!\n");
@@ -456,32 +457,38 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
 			"page_size looks suspicious (no power of 2)!\n");
 
 	/* Use I2C operations unless we're stuck with SMBus extensions. */
+    /* 检查是否支持I2C协议， 
+        如果不支持，则检查是否使用SMBUS协议*/ 
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+        /* 不支持I2C协议，但是使用16位地址，出错*/ 
 		if (chip.flags & AT24_FLAG_ADDR16) {
 			err = -EPFNOSUPPORT;
 			goto err_out;
 		}
+    /*  不支持I2C协议，使用8位地址， 
+           但是不支持I2C_FUNC_SMBUS_READ_I2C_BLOCK，出错*/ 
 		if (!i2c_check_functionality(client->adapter,
 				I2C_FUNC_SMBUS_READ_I2C_BLOCK)) {
 			err = -EPFNOSUPPORT;
 			goto err_out;
 		}
-		use_smbus = true;
+		use_smbus = true;/*使用 SMBUS协议*/ 
 	}
-
+    /*是否使用8个地址，根据id表， 
+            目前只有AT24C00使用8个地址，其他都为1个*/  
 	if (chip.flags & AT24_FLAG_TAKE8ADDR)
 		num_addresses = 8;
-	else
+	else/* 24C02需要1个地址，24C04为2个，以此类推*/  
 		num_addresses =	DIV_ROUND_UP(chip.byte_len,
 			(chip.flags & AT24_FLAG_ADDR16) ? 65536 : 256);
-
+    /* 分配struct at24_data，同时根据地址个数分配struct i2c_client*/ 
 	at24 = kzalloc(sizeof(struct at24_data) +
 		num_addresses * sizeof(struct i2c_client *), GFP_KERNEL);
 	if (!at24) {
 		err = -ENOMEM;
 		goto err_out;
 	}
-
+    /* 初始化struct at24_data*/
 	mutex_init(&at24->lock);
 	at24->use_smbus = use_smbus;
 	at24->chip = chip;
@@ -491,13 +498,15 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
 	 * Export the EEPROM bytes through sysfs, since that's convenient.
 	 * By default, only root should see the data (maybe passwords etc)
 	 */
+	/* 设置bin_attribute字段，二进制文件名为eeprom， 
+         通过它即可读写设备 */ 
 	at24->bin.attr.name = "eeprom";
 	at24->bin.attr.mode = chip.flags & AT24_FLAG_IRUGO ? S_IRUGO : S_IRUSR;
 	at24->bin.read = at24_bin_read;
 	at24->bin.size = chip.byte_len;
 
-	at24->macc.read = at24_macc_read;
-
+	at24->macc.read = at24_macc_read;/***  先忽略***/
+    /* 判断设备是否可写*/
 	writable = !(chip.flags & AT24_FLAG_READONLY);
 	if (writable) {
 		if (!use_smbus || i2c_check_functionality(client->adapter,
@@ -505,18 +514,20 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
 
 			unsigned write_max = chip.page_size;
 
-			at24->macc.write = at24_macc_write;
+			at24->macc.write = at24_macc_write;/***  先忽略***/ 
 
-			at24->bin.write = at24_bin_write;
-			at24->bin.attr.mode |= S_IWUSR;
+			at24->bin.write = at24_bin_write;/* 写函数*/ 
+			at24->bin.attr.mode |= S_IWUSR;/* 文件拥有者可写*/
 
-			if (write_max > io_limit)
+			if (write_max > io_limit)/* 一次最多写io_limit个字节*/
 				write_max = io_limit;
+            /* 如果使用smbus，对write_max检查*/
 			if (use_smbus && write_max > I2C_SMBUS_BLOCK_MAX)
 				write_max = I2C_SMBUS_BLOCK_MAX;
 			at24->write_max = write_max;
 
 			/* buffer (data + address at the beginning) */
+            /* 分配写缓冲区，多余两个字节用于保存寄存器地址*/ 
 			at24->writebuf = kmalloc(write_max + 2, GFP_KERNEL);
 			if (!at24->writebuf) {
 				err = -ENOMEM;
@@ -528,12 +539,13 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
 		}
 	}
 
-	at24->client[0] = client;
+	at24->client[0] = client;/* 保存i2c设备client*/
 
 	/* use dummy devices for multiple-address chips */
+    /* 为其余设备地址注册一个dummy设备*/
 	for (i = 1; i < num_addresses; i++) {
 		at24->client[i] = i2c_new_dummy(client->adapter,
-					client->addr + i);
+					client->addr + i);/* 设备地址每次加1 */
 		if (!at24->client[i]) {
 			dev_err(&client->dev, "address 0x%02x unavailable\n",
 					client->addr + i);
@@ -541,13 +553,13 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
 			goto err_clients;
 		}
 	}
-
+    /* 创建二进制属性*/ 
 	err = sysfs_create_bin_file(&client->dev.kobj, &at24->bin);
 	if (err)
 		goto err_clients;
 
-	i2c_set_clientdata(client, at24);
-
+	i2c_set_clientdata(client, at24);/* 保存驱动数据*/
+    /* 打印设备信息*/
 	dev_info(&client->dev, "%zu byte %s EEPROM %s\n",
 		at24->bin.size, client->name,
 		writable ? "(writable)" : "(read-only)");
