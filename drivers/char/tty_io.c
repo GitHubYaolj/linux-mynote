@@ -1807,7 +1807,7 @@ retry_open:
 		return -ENODEV;
 	}
 
-	driver = get_tty_driver(device, &index);//根据device得到index和driver
+	driver = get_tty_driver(device, &index);//根据device的主次设备号，确定driver,根据device-base确定index
 	if (!driver) {
 		mutex_unlock(&tty_mutex);
 		return -ENODEV;
