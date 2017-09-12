@@ -2439,12 +2439,15 @@ int uart_add_one_port(struct uart_driver *drv, struct uart_port *port)
 		goto out;
 	}
 
-	state->port = port;
+	state->port = port;//uart_state和真实的端口uart_port产生联系
 	state->pm_state = -1;
 
 	port->cons = drv->cons;
-	port->info = &state->info;
-
+	port->info = &state->info;//uart_port也和上层的uart_info产生联系,
+	                          //通过uart_info->tty_port->tty_struct和tty_struct产生联系，它有存储接收数据的buf,
+	                          //  tty_struct的driver_data里面会设置为对应的tty_state
+	                          //通过uart_info->xmit，上层要发送的数据放入xmit
+                              
 	/*
 	 * If this port is a console, then the spinlock is already
 	 * initialised.
