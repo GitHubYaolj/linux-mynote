@@ -209,7 +209,7 @@ s3c24xx_serial_rx_chars(int irq, void *dev_id)
 			break;
 
 		uerstat = rd_regl(port, S3C2410_UERSTAT);
-		ch = rd_regb(port, S3C2410_URXH);
+		ch = rd_regb(port, S3C2410_URXH);//中断中读取接收到的字符
 
 		if (port->flags & UPF_CONS_FLOW) {
 			int txe = s3c24xx_serial_txempty_nofifo(port);
@@ -403,7 +403,7 @@ static int s3c24xx_serial_startup(struct uart_port *port)
 	rx_enabled(port) = 1;
 
 	ret = request_irq(ourport->rx_irq, s3c24xx_serial_rx_chars, 0,
-			  s3c24xx_serial_portname(port), ourport);
+			  s3c24xx_serial_portname(port), ourport);//接收中断函数
 
 	if (ret != 0) {
 		printk(KERN_ERR "cannot get irq %d\n", ourport->rx_irq);
@@ -417,7 +417,7 @@ static int s3c24xx_serial_startup(struct uart_port *port)
 	tx_enabled(port) = 1;
 
 	ret = request_irq(ourport->tx_irq, s3c24xx_serial_tx_chars, 0,
-			  s3c24xx_serial_portname(port), ourport);
+			  s3c24xx_serial_portname(port), ourport);//发送中断函数
 
 	if (ret) {
 		printk(KERN_ERR "cannot get irq %d\n", ourport->tx_irq);
@@ -1162,7 +1162,7 @@ int s3c24xx_serial_probe(struct platform_device *dev,
 		goto probe_err;
 
 	dbg("%s: adding port\n", __func__);
-	uart_add_one_port(&s3c24xx_uart_drv, &ourport->port);
+	uart_add_one_port(&s3c24xx_uart_drv, &ourport->port);//设置ourport->port的info
 	platform_set_drvdata(dev, &ourport->port);
 
 	ret = device_create_file(&dev->dev, &dev_attr_clock_source);

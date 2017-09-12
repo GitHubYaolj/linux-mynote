@@ -517,7 +517,7 @@ uart_write(struct tty_struct *tty, const unsigned char *buf, int count)
 
 	spin_lock_irqsave(&port->lock, flags);
 	while (1) {
-		c = CIRC_SPACE_TO_END(circ->head, circ->tail, UART_XMIT_SIZE);
+		c = CIRC_SPACE_TO_END(circ->head, circ->tail, UART_XMIT_SIZE);//返回可用缓存空间的大小
 		if (count < c)
 			c = count;
 		if (c <= 0)
@@ -1627,8 +1627,8 @@ static int uart_open(struct tty_struct *tty, struct file *filp)//这里会初始化sta
 	state->port->info = &state->info;
 	tty->low_latency = (state->port->flags & UPF_LOW_LATENCY) ? 1 : 0;
 	tty->alt_speed = 0;
-	state->info.port.tty = tty;
-
+	state->info.port.tty = tty;//重要，打通串口接收中断处理函数需要通过uart_port->uart_info->tty_port->tty_struct将接收到的数据传递给行规则层
+                               //见uart_insert_char(port, uerstat, S3C2410_UERSTAT_OVERRUN,ch, flag);
 	/*
 	 * If the port is in the middle of closing, bail out now.
 	 */
@@ -2368,7 +2368,7 @@ int uart_register_driver(struct uart_driver *drv)
 		state->closing_wait    = 30000;	/* 30 seconds */
 		mutex_init(&state->mutex);
 
-		tty_port_init(&state->info.port);
+		tty_port_init(&state->info.port);//初始化tty_port，串口接收中断处理函数需要通过uart_port->uart_info->tty_port->tty_struct将接收到的数据传递给行规则层
 		init_waitqueue_head(&state->info.delta_msr_wait);
 		tasklet_init(&state->info.tlet, uart_tasklet_action,
 			     (unsigned long)state);

@@ -1828,7 +1828,7 @@ got_driver:
 		if (retval)
 			tty = ERR_PTR(retval);
 	} else
-		tty = tty_init_dev(driver, index, 0);//初始化tty_struct
+		tty = tty_init_dev(driver, index, 0);//初始化，为需要打开的终端建立tty_struct结构体,tty->driver=driver
 
 	mutex_unlock(&tty_mutex);
 	tty_driver_kref_put(driver);
