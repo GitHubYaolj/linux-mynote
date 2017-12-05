@@ -1845,7 +1845,7 @@ got_driver:
 	printk(KERN_DEBUG "opening %s...", tty->name);
 #endif
 	if (!retval) {
-		if (tty->ops->open)
+		if (tty->ops->open)//tty->ops = driver->ops;//uart_ops
 			retval = tty->ops->open(tty, filp);
 		else
 			retval = -ENODEV;
@@ -2783,7 +2783,7 @@ void initialize_tty_struct(struct tty_struct *tty,
 	INIT_WORK(&tty->SAK_work, do_SAK_work);
 
 	tty->driver = driver;
-	tty->ops = driver->ops;//uart_driver
+	tty->ops = driver->ops;//uart_ops
 	tty->index = idx;
 	tty_line_name(driver, idx, tty->name);
 }
