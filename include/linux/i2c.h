@@ -261,7 +261,7 @@ struct i2c_board_info {
 	char		type[I2C_NAME_SIZE];
 	unsigned short	flags;
 	unsigned short	addr;
-	void		*platform_data;
+	void		*platform_data;//指向一个at24_platform_data结构体
 	struct dev_archdata	*archdata;
 	int		irq;
 };
