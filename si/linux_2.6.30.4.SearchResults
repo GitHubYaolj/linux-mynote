@@ -1,6 +1,4 @@
----- bus_kset Matches (5 in 1 files) ----
-Bus.c (e:\´ò¸¨Öú\tq2440\practise\linux-2.6.30.4\drivers\base):static struct kset *bus_kset;
-Bus.c (e:\´ò¸¨Öú\tq2440\practise\linux-2.6.30.4\drivers\base):	struct kobject *k = kset_find_obj(bus_kset, name);
-Bus.c (e:\´ò¸¨Öú\tq2440\practise\linux-2.6.30.4\drivers\base):	priv->subsys.kobj.kset = bus_kset;
-Bus.c (e:\´ò¸¨Öú\tq2440\practise\linux-2.6.30.4\drivers\base):	bus_kset = kset_create_and_add("bus", &bus_uevent_ops, NULL);
-Bus.c (e:\´ò¸¨Öú\tq2440\practise\linux-2.6.30.4\drivers\base):	if (!bus_kset)
+---- chrdev_open Matches (3 in 2 files) ----
+Char_dev.c (fs):static int chrdev_open(struct inode *inode, struct file *filp)
+Char_dev.c (fs):	.open = chrdev_open,
+Serial_core.c (drivers\serial): *   fs/char_dev.c:chrdev_open()
