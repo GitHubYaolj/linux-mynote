@@ -33,7 +33,7 @@ int kobj_map(struct kobj_map *domain, dev_t dev, unsigned long range,
 	     struct module *module, kobj_probe_t *probe,
 	     int (*lock)(dev_t, void *), void *data)
 {
-	unsigned n = MAJOR(dev + range - 1) - MAJOR(dev) + 1;
+	unsigned n = MAJOR(dev + range - 1) - MAJOR(dev) + 1;//表示设备号范围(dev, dev+range)中不同的主设备号的个数,n通常为1
 	unsigned index = MAJOR(dev);
 	unsigned i;
 	struct probe *p;
