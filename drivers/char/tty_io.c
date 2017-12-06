@@ -1835,7 +1835,7 @@ got_driver:
 	if (IS_ERR(tty))
 		return PTR_ERR(tty);
 
-	filp->private_data = tty;
+	filp->private_data = tty;//新创建的tty_struct和打开的文件关联起来
 	file_move(filp, &tty->tty_files);
 	check_tty_count(tty, "tty_open");
 	if (tty->driver->type == TTY_DRIVER_TYPE_PTY &&

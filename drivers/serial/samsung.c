@@ -1157,12 +1157,12 @@ int s3c24xx_serial_probe(struct platform_device *dev,
 
 	dbg("%s: initialising port %p...\n", __func__, ourport);
 
-	ret = s3c24xx_serial_init_port(ourport, info, dev);
+	ret = s3c24xx_serial_init_port(ourport, info, dev);//用注册的平台设备信息和info设置port
 	if (ret < 0)
 		goto probe_err;
 
 	dbg("%s: adding port\n", __func__);
-	uart_add_one_port(&s3c24xx_uart_drv, &ourport->port);//设置ourport->port的info
+	uart_add_one_port(&s3c24xx_uart_drv, &ourport->port);//给uart_driver里面的uart_state关联port
 	platform_set_drvdata(dev, &ourport->port);
 
 	ret = device_create_file(&dev->dev, &dev_attr_clock_source);
