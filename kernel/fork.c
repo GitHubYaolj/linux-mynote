@@ -220,17 +220,19 @@ static struct task_struct *dup_task_struct(struct task_struct *orig)
 
 	prepare_to_copy(orig);
 
-	tsk = alloc_task_struct();
+	tsk = alloc_task_struct();//分配新进程的task_struct空间
 	if (!tsk)
 		return NULL;
 
-	ti = alloc_thread_info(tsk);
+	ti = alloc_thread_info(tsk);//分配1页的空间作为新进程的内核栈，空间的最低地址存放thread_info结构
 	if (!ti) {
 		free_task_struct(tsk);
 		return NULL;
 	}
 
- 	err = arch_dup_task_struct(tsk, orig);
+ 	err = arch_dup_task_struct(tsk, orig);//完全复制task_struct，因成员mm_struct相同，所以与父进程的地址空间完全相同
+ 	                                      //虽地址空间相同，但每个进程都有自己的地址空间，所以是虚拟地址相同
+ 	                                      //此时为虚拟地址相同，物理地址也相同，但是写时拷贝，有写入时新进程就会重新分配物理地址了
 	if (err)
 		goto out;
 
@@ -240,7 +242,7 @@ static struct task_struct *dup_task_struct(struct task_struct *orig)
 	if (err)
 		goto out;
 
-	setup_thread_stack(tsk, orig);
+	setup_thread_stack(tsk, orig);//ti->task=tsk;这里把thread_info里的task指针指向了fork的新task
 	stackend = end_of_stack(tsk);
 	*stackend = STACK_END_MAGIC;	/* for overflow detection */
 
@@ -713,7 +715,7 @@ static int copy_files(unsigned long clone_flags, struct task_struct * tsk)
 	/*
 	 * A background process may not have any files ...
 	 */
-	oldf = current->files;
+	oldf = current->files;//当前进程打开的文件列表
 	if (!oldf)
 		goto out;
 
@@ -1093,16 +1095,16 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 		ptrace_fork(p, clone_flags);
 
 	/* Perform scheduler related setup. Assign this task to a CPU. */
-	sched_fork(p, clone_flags);
+	sched_fork(p, clone_flags);                   //为新进程分配CPU
 
 	if ((retval = audit_alloc(p)))
-		goto bad_fork_cleanup_policy;
-	/* copy all the process information */
+		goto bad_fork_cleanup_policy;           //https://www.2cto.com/kf/201610/557646.html
+	/* copy all the process information */        //以下copy父进程资源
 	if ((retval = copy_semundo(clone_flags, p)))
 		goto bad_fork_cleanup_audit;
-	if ((retval = copy_files(clone_flags, p)))
+	if ((retval = copy_files(clone_flags, p)))   //copy父进程打开的文件描述符
 		goto bad_fork_cleanup_semundo;
-	if ((retval = copy_fs(clone_flags, p)))
+	if ((retval = copy_fs(clone_flags, p)))      //继承父进程所属的文件系统
 		goto bad_fork_cleanup_files;
 	if ((retval = copy_sighand(clone_flags, p)))
 		goto bad_fork_cleanup_fs;
@@ -1120,7 +1122,7 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 
 	if (pid != &init_struct_pid) {
 		retval = -ENOMEM;
-		pid = alloc_pid(p->nsproxy->pid_ns);
+		pid = alloc_pid(p->nsproxy->pid_ns);//为新进程分配一个pid
 		if (!pid)
 			goto bad_fork_cleanup_io;
 
@@ -1427,7 +1429,7 @@ long do_fork(unsigned long clone_flags,
 			set_tsk_thread_flag(p, TIF_SIGPENDING);
 			__set_task_state(p, TASK_STOPPED);
 		} else {
-			wake_up_new_task(p, clone_flags);
+			wake_up_new_task(p, clone_flags);//唤醒新进程
 		}
 
 		tracehook_report_clone_complete(trace, regs,

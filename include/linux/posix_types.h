@@ -34,7 +34,7 @@
 #define	__FDMASK(d)	(1UL << ((d) % __NFDBITS))
 
 typedef struct {
-	unsigned long fds_bits [__FDSET_LONGS];
+	unsigned long fds_bits [__FDSET_LONGS];//select支持的文件描述符数量太小了，默认是1024
 } __kernel_fd_set;
 
 /* Type of a signal handler.  */

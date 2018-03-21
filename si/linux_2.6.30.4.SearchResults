@@ -1,4 +1,5 @@
----- chrdev_open Matches (3 in 2 files) ----
-Char_dev.c (fs):static int chrdev_open(struct inode *inode, struct file *filp)
-Char_dev.c (fs):	.open = chrdev_open,
-Serial_core.c (drivers\serial): *   fs/char_dev.c:chrdev_open()
+---- add_mtd_device Matches (4 in 2 files) ----
+Mtd.h (include\linux\mtd):extern int add_mtd_device(struct mtd_info *mtd);
+S3c2410.c (drivers\mtd\nand):		return add_mtd_device(&mtd->mtd);
+S3c2410.c (drivers\mtd\nand):	return add_mtd_device(&mtd->mtd);
+S3c2410.c (drivers\mtd\nand):	return add_mtd_device(&mtd->mtd);

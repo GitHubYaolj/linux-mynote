@@ -1076,7 +1076,7 @@ static int uvc_v4l2_mmap(struct file *file, struct vm_area_struct *vma)
 
 	addr = (unsigned long)video->queue.mem + buffer->buf.m.offset;
 	while (size > 0) {
-		page = vmalloc_to_page((void *)addr);
+		page = vmalloc_to_page((void *)addr);//找到虚拟地址addr对应的物理page
 		if ((ret = vm_insert_page(vma, start, page)) < 0)
 			goto done;
 

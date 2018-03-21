@@ -305,10 +305,10 @@ copy_thread(unsigned long clone_flags, unsigned long stack_start,
 	    unsigned long stk_sz, struct task_struct *p, struct pt_regs *regs)
 {
 	struct thread_info *thread = task_thread_info(p);
-	struct pt_regs *childregs = task_pt_regs(p);
+	struct pt_regs *childregs = task_pt_regs(p);//栈内保存寄存器(r0...sp,lr,pc等)的地址
 
 	*childregs = *regs;
-	childregs->ARM_r0 = 0;
+	childregs->ARM_r0 = 0;//返回值设置为0，所以用户空间fork返回时子进程的返回值为0
 	childregs->ARM_sp = stack_start;
 
 	memset(&thread->cpu_context, 0, sizeof(struct cpu_context_save));

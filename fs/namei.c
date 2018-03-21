@@ -1029,12 +1029,12 @@ static int do_path_lookup(int dfd, const char *name,
 	nd->flags = flags;
 	nd->depth = 0;
 
-	if (*name=='/') {
+	if (*name=='/') {//获取根目录
 		read_lock(&fs->lock);
 		nd->path = fs->root;
 		path_get(&fs->root);
 		read_unlock(&fs->lock);
-	} else if (dfd == AT_FDCWD) {
+	} else if (dfd == AT_FDCWD) {//获取当前目录
 		read_lock(&fs->lock);
 		nd->path = fs->pwd;
 		path_get(&fs->pwd);
@@ -1042,7 +1042,7 @@ static int do_path_lookup(int dfd, const char *name,
 	} else {
 		struct dentry *dentry;
 
-		file = fget_light(dfd, &fput_needed);
+		file = fget_light(dfd, &fput_needed); //通过文件描述符返回对应的文件结构
 		retval = -EBADF;
 		if (!file)
 			goto out_fail;
@@ -1731,8 +1731,8 @@ do_last:
 		if (error) {
 			mnt_drop_write(nd.path.mnt);
 			goto exit;
-		}
-		filp = nameidata_to_filp(&nd, open_flag);
+		}    //沿着要打开文件名的整个路径，一层层解析路径，最后得到文件的dentry和vfsmount对象，保存到一个nameidata结构中
+		filp = nameidata_to_filp(&nd, open_flag);//根据第一步获得的nameidata结构，初始化一个file对象
 		mnt_drop_write(nd.path.mnt);
 		return filp;
 	}

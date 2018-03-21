@@ -836,8 +836,9 @@ static struct file *__dentry_open(struct dentry *dentry, struct vfsmount *mnt,
 
 	if (!open && f->f_op)
 		open = f->f_op->open;//如果是字符设备，def_chr_fops中的chrdev_open http://www.docin.com/p-292302534.html
+		           
 	if (open) {
-		error = open(inode, f);
+		error = open(inode, f);//f_op会在调用的open函数中被替换掉，filp->f_op = fops_get(p->ops);
 		if (error)
 			goto cleanup_all;
 	}
@@ -1027,11 +1028,11 @@ EXPORT_SYMBOL(fd_install);
 
 long do_sys_open(int dfd, const char __user *filename, int flags, int mode)
 {
-	char *tmp = getname(filename);
+	char *tmp = getname(filename);//getname函数主要功能是在使用文件名之前将其拷贝到内核数据区，正常结束时返回内核分配的空间首地址，出错时返回错误代码
 	int fd = PTR_ERR(tmp);
 
 	if (!IS_ERR(tmp)) {
-		fd = get_unused_fd_flags(flags);
+		fd = get_unused_fd_flags(flags);//取得系统中可用的文件描述符fd
 		if (fd >= 0) {
 			struct file *f = do_filp_open(dfd, tmp, flags, mode, 0);
 			if (IS_ERR(f)) {

@@ -395,7 +395,7 @@ int do_select(int n, fd_set_bits *fds, struct timespec *end_time)
 		inp = fds->in; outp = fds->out; exp = fds->ex;
 		rinp = fds->res_in; routp = fds->res_out; rexp = fds->res_ex;
 
-		for (i = 0; i < n; ++rinp, ++routp, ++rexp) {
+		for (i = 0; i < n; ++rinp, ++routp, ++rexp) {//每次调用select都需要在内核遍历传递进来的所有fd，这个开销在fd很多时也很大
 			unsigned long in, out, ex, all_bits, bit = 1, mask, j;
 			unsigned long res_in = 0, res_out = 0, res_ex = 0;
 			const struct file_operations *f_op = NULL;
@@ -419,7 +419,7 @@ int do_select(int n, fd_set_bits *fds, struct timespec *end_time)
 					f_op = file->f_op;
 					mask = DEFAULT_POLLMASK;
 					if (f_op && f_op->poll)
-						mask = (*f_op->poll)(file, retval ? NULL : wait);
+						mask = (*f_op->poll)(file, retval ? NULL : wait);//后面for外设置wait=NULL
 					fput_light(file, fput_needed);
 					if ((mask & POLLIN_SET) && (in & bit)) {
 						res_in |= bit;
@@ -462,7 +462,7 @@ int do_select(int n, fd_set_bits *fds, struct timespec *end_time)
 		}
 
 		if (!poll_schedule_timeout(&table, TASK_INTERRUPTIBLE,
-					   to, slack))
+					   to, slack))//休眠
 			timed_out = 1;
 	}
 
@@ -528,7 +528,7 @@ int core_sys_select(int n, fd_set __user *inp, fd_set __user *outp,
 
 	if ((ret = get_fd_set(n, inp, fds.in)) ||
 	    (ret = get_fd_set(n, outp, fds.out)) ||
-	    (ret = get_fd_set(n, exp, fds.ex)))
+	    (ret = get_fd_set(n, exp, fds.ex)))//每次调用select，都需要把fd集合从用户态拷贝到内核态，这个开销在fd很多时会很大
 		goto out;
 	zero_fd_set(n, fds.res_in);
 	zero_fd_set(n, fds.res_out);

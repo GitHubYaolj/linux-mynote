@@ -2103,8 +2103,8 @@ static inline void unlock_task_sighand(struct task_struct *tsk,
 
 static inline void setup_thread_stack(struct task_struct *p, struct task_struct *org)
 {
-	*task_thread_info(p) = *task_thread_info(org);
-	task_thread_info(p)->task = p;
+	*task_thread_info(p) = *task_thread_info(org);//新进程完全复制父进程内核栈
+	task_thread_info(p)->task = p;//新进程thread_info->task指向新进程task_struct
 }
 
 static inline unsigned long *end_of_stack(struct task_struct *p)

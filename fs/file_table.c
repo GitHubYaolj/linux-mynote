@@ -323,6 +323,7 @@ EXPORT_SYMBOL(fget);
  * and a flag is returned to be passed to the corresponding fput_light().
  * There must not be a cloning between an fget_light/fput_light pair.
  */
+ //通过文件描述符返回对应的文件结构
 struct file *fget_light(unsigned int fd, int *fput_needed)
 {
 	struct file *file;
