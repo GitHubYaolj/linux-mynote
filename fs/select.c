@@ -361,7 +361,8 @@ get_max:
 #define POLLIN_SET (POLLRDNORM | POLLRDBAND | POLLIN | POLLHUP | POLLERR)
 #define POLLOUT_SET (POLLWRBAND | POLLWRNORM | POLLOUT | POLLERR)
 #define POLLEX_SET (POLLPRI)
-
+//事实上，同时连接的大量客户端在一时刻可能只有很少的处于就绪状态，
+//因此随着监视的描述符数量的增长，其效率也会线性下降（内核态和用户态都需要遍历描述符集合）
 int do_select(int n, fd_set_bits *fds, struct timespec *end_time)
 {
 	ktime_t expire, *to = NULL;
@@ -547,7 +548,7 @@ int core_sys_select(int n, fd_set __user *inp, fd_set __user *outp,
 
 	if (set_fd_set(n, inp, fds.res_in) ||
 	    set_fd_set(n, outp, fds.res_out) ||
-	    set_fd_set(n, exp, fds.res_ex))
+	    set_fd_set(n, exp, fds.res_ex))  //查询结果从内核态拷贝至用户态
 		ret = -EFAULT;
 
 out:
@@ -792,7 +793,7 @@ int do_sys_poll(struct pollfd __user *ufds, unsigned int nfds,
 			break;
 
 		if (copy_from_user(walk->entries, ufds + nfds-todo,
-					sizeof(struct pollfd) * walk->len))
+					sizeof(struct pollfd) * walk->len))//需要把pollfd数组从用户态拷贝到内核态，组装成链表
 			goto out_fds;
 
 		todo -= walk->len;
@@ -809,7 +810,7 @@ int do_sys_poll(struct pollfd __user *ufds, unsigned int nfds,
 	}
 
 	poll_initwait(&table);
-	fdcount = do_poll(nfds, head, &table, end_time);
+	fdcount = do_poll(nfds, head, &table, end_time);//每次调用poll都需要在内核遍历poll_list链表
 	poll_freewait(&table);
 
 	for (walk = head; walk; walk = walk->next) {
@@ -817,7 +818,7 @@ int do_sys_poll(struct pollfd __user *ufds, unsigned int nfds,
 		int j;
 
 		for (j = 0; j < walk->len; j++, ufds++)
-			if (__put_user(fds[j].revents, &ufds->revents))
+			if (__put_user(fds[j].revents, &ufds->revents))//查询结果从内核态拷贝至用户态
 				goto out_fds;
   	}
 
