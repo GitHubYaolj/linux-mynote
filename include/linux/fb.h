@@ -152,7 +152,7 @@ struct dentry;
 
 struct fb_fix_screeninfo {
 	char id[16];			/* identification string eg "TT Builtin" */
-	unsigned long smem_start;	/* Start of frame buffer mem */
+	unsigned long smem_start;	/* Start of frame buffer mem */ //物理地址
 					/* (physical address) */
 	__u32 smem_len;			/* Length of frame buffer mem */
 	__u32 type;			/* see FB_TYPE_*		*/
@@ -846,7 +846,7 @@ struct fb_info {
 #ifdef CONFIG_FB_TILEBLITTING
 	struct fb_tile_ops *tileops;    /* Tile Blitting */
 #endif
-	char __iomem *screen_base;	/* Virtual address */
+	char __iomem *screen_base;	/* Virtual address */ //内核视角下的虚拟地址
 	unsigned long screen_size;	/* Amount of ioremapped VRAM or 0 */ 
 	void *pseudo_palette;		/* Fake palette of 16 colors */ 
 #define FBINFO_STATE_RUNNING	0

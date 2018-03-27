@@ -1336,7 +1336,7 @@ __releases(&info->lock)
 	mutex_lock(&info->lock);
 
 	/* frame buffer memory */
-	start = info->fix.smem_start;
+	start = info->fix.smem_start;//物理地址
 	len = PAGE_ALIGN((start & ~PAGE_MASK) + info->fix.smem_len);
 	if (off >= len) {
 		/* memory mapped io */
@@ -1358,7 +1358,7 @@ __releases(&info->lock)
 	vma->vm_flags |= VM_IO | VM_RESERVED;
 	fb_pgprotect(file, vma, off);
 	if (io_remap_pfn_range(vma, vma->vm_start, off >> PAGE_SHIFT,
-			     vma->vm_end - vma->vm_start, vma->vm_page_prot))
+			     vma->vm_end - vma->vm_start, vma->vm_page_prot))//为应用程序映射物理地址smem_start
 		return -EAGAIN;
 	return 0;
 }

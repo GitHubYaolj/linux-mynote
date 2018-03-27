@@ -2986,7 +2986,7 @@ int tty_register_driver(struct tty_driver *driver)
 	}
 
 	mutex_lock(&tty_mutex);
-	list_add(&driver->tty_drivers, &tty_drivers);
+	list_add(&driver->tty_drivers, &tty_drivers);//加入tty_drivers链表，会通过遍历该链表得到设备的驱动
 	mutex_unlock(&tty_mutex);
 
 	if (!(driver->flags & TTY_DRIVER_DYNAMIC_DEV)) {

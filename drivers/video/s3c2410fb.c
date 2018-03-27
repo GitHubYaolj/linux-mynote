@@ -635,13 +635,14 @@ static struct fb_ops s3c2410fb_ops = {
 static int __init s3c2410fb_map_video_memory(struct fb_info *info)
 {
 	struct s3c2410fb_info *fbi = info->par;
-	dma_addr_t map_dma;
+	dma_addr_t map_dma;//物理地址
 	unsigned map_size = PAGE_ALIGN(info->fix.smem_len);
 
 	dprintk("map_video_memory(fbi=%p) map_size %u\n", fbi, map_size);
 
 	info->screen_base = dma_alloc_writecombine(fbi->dev, map_size,
-						   &map_dma, GFP_KERNEL);
+						   &map_dma, GFP_KERNEL);//内核视角下的虚拟地址screen_base与map_dma物理地址对应，
+						                         //map_dma会再次映射(调用mmap VM)到应用程序的进程地址空间
 
 	if (info->screen_base) {
 		/* prevent initial garbage on screen */
