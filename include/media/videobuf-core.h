@@ -99,7 +99,7 @@ struct videobuf_buffer {
 	size_t                  boff;
 
 	/* buffer addr (userland ptr!) */
-	unsigned long           baddr;
+	unsigned long           baddr;//ĞéÄâµØÖ·
 
 	/* for mmap'ed buffers */
 	struct videobuf_mapping *map;

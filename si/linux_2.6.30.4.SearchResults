@@ -1,9 +1,6 @@
----- eventpoll Matches (7 in 4 files) ----
-
-Compat.h (include\linux): * epoll (fs/eventpoll.c) compat bits follow ...
-Eventpoll.h (include\linux): *  include/linux/eventpoll.h ( Efficent event polling implementation )
-Eventpoll.h (include\linux): * from the eventpoll interface. We need to have this facility to cleanup
-Eventpoll.h (include\linux): * correctly files that are closed without being removed from the eventpoll
-Eventpoll.h (include\linux):	 * eventpoll ) has still a reference to this file.
-File_table.c (fs):#include <linux/eventpoll.h>
-Fs.h (include\linux):	/* Used by fs/eventpoll.c to link all the hooks to this file */
+---- mmap_mapper Matches (5 in 5 files) ----
+Videobuf-core.c (drivers\media\video):	retval = CALL(q, mmap_mapper, q, vma);
+Videobuf-core.h (include\media):	int (*mmap_mapper)	(struct videobuf_queue *q,
+Videobuf-dma-contig.c (drivers\media\video):	.mmap_mapper  = __videobuf_mmap_mapper,
+Videobuf-dma-sg.c (drivers\media\video):	.mmap_mapper  = __videobuf_mmap_mapper,
+Videobuf-vmalloc.c (drivers\media\video):	.mmap_mapper  = __videobuf_mmap_mapper,

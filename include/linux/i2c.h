@@ -368,7 +368,7 @@ struct i2c_adapter {
 	int retries;
 	struct device dev;		/* the adapter device */
 
-	int nr;
+	int nr;   //适配器编号，即bus编号，第几条i2c总线
 	struct list_head clients;	/* DEPRECATED */
 	char name[48];
 	struct completion dev_released;

@@ -61,11 +61,11 @@ typedef void (bh_end_io_t)(struct buffer_head *bh, int uptodate);
 struct buffer_head {
 	unsigned long b_state;		/* buffer state bitmap (see above) */
 	struct buffer_head *b_this_page;/* circular list of page's buffers */
-	struct page *b_page;		/* the page this bh is mapped to */
+	struct page *b_page;		/* the page this bh is mapped to */ //缓冲区位于哪个页面
 
 	sector_t b_blocknr;		/* start block number */
 	size_t b_size;			/* size of mapping */
-	char *b_data;			/* pointer to data within the page */
+	char *b_data;			/* pointer to data within the page */  //缓冲区
 
 	struct block_device *b_bdev;
 	bh_end_io_t *b_end_io;		/* I/O completion */

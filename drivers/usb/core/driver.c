@@ -589,7 +589,7 @@ EXPORT_SYMBOL_GPL(usb_match_id);
 static int usb_device_match(struct device *dev, struct device_driver *drv)
 {
 	/* devices and interfaces are handled separately */
-	if (is_usb_device(dev)) {
+	if (is_usb_device(dev)) {    //代表整个USB设备
 
 		/* interface drivers never match devices */
 		if (!is_usb_device_driver(drv))
@@ -598,7 +598,7 @@ static int usb_device_match(struct device *dev, struct device_driver *drv)
 		/* TODO: Add real matching code */
 		return 1;
 
-	} else {
+	} else {        //如果是USB设备的一个接口 
 		struct usb_interface *intf;
 		struct usb_driver *usb_drv;
 		const struct usb_device_id *id;

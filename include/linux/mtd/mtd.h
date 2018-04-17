@@ -102,7 +102,7 @@ struct mtd_oob_ops {
 };
 
 struct mtd_info {
-	u_char type;
+	u_char type;     //mtd设备类型
 	uint32_t flags;
 	uint64_t size;	 // Total size of the MTD
 
@@ -110,7 +110,7 @@ struct mtd_info {
 	 * to be the only erase size available, or may use the more detailed
 	 * information below if they desire
 	 */
-	uint32_t erasesize;
+	uint32_t erasesize;//擦除单元大小，即block的大小
 	/* Minimal writable flash unit size. In case of NOR flash it is 1 (even
 	 * though individual bits can be cleared), in case of NAND flash it is
 	 * one NAND page (or half, or one-fourths of it), in case of ECC-ed NOR
@@ -120,7 +120,7 @@ struct mtd_info {
 	 */
 	uint32_t writesize;
 
-	uint32_t oobsize;   // Amount of OOB data per block (e.g. 16)
+	uint32_t oobsize;   // Amount of OOB data per block (e.g. 16) oob区的大小，对512byte一页的nand来说是16
 	uint32_t oobavail;  // Available OOB bytes per block
 
 	/*
@@ -134,8 +134,8 @@ struct mtd_info {
 	unsigned int writesize_mask;
 
 	// Kernel-only stuff starts here.
-	const char *name;
-	int index;
+	const char *name;  //设备名字
+	int index;         //设备在MTD列表中的位置
 
 	/* ecc layout structure pointer - read only ! */
 	struct nand_ecclayout *ecclayout;
@@ -152,15 +152,15 @@ struct mtd_info {
 	 * if it completes with a failure.
 	 * Callers are supposed to pass a callback function and wait for it
 	 * to be called before writing to the block.
-	 */
+	 */ //将一个erase_info加入擦除队列
 	int (*erase) (struct mtd_info *mtd, struct erase_info *instr);
 
 	/* This stuff for eXecute-In-Place */
-	/* phys is optional and may be set to NULL */
+	/* phys is optional and may be set to NULL */ //允许片内执行(XIP)
 	int (*point) (struct mtd_info *mtd, loff_t from, size_t len,
 			size_t *retlen, void **virt, resource_size_t *phys);
 
-	/* We probably shouldn't allow XIP if the unpoint isn't a NULL */
+	/* We probably shouldn't allow XIP if the unpoint isn't a NULL */ //禁止片内执行
 	void (*unpoint) (struct mtd_info *mtd, loff_t from, size_t len);
 
 	/* Allow NOMMU mmap() to directly map the device (if not NULL)
@@ -177,7 +177,7 @@ struct mtd_info {
 	 */
 	struct backing_dev_info *backing_dev_info;
 
-
+    //读写函数
 	int (*read) (struct mtd_info *mtd, loff_t from, size_t len, size_t *retlen, u_char *buf);
 	int (*write) (struct mtd_info *mtd, loff_t to, size_t len, size_t *retlen, const u_char *buf);
 
@@ -191,7 +191,7 @@ struct mtd_info {
 	int (*panic_write) (struct mtd_info *mtd, loff_t to, size_t len, size_t *retlen, const u_char *buf);
 
 	int (*read_oob) (struct mtd_info *mtd, loff_t from,
-			 struct mtd_oob_ops *ops);
+			 struct mtd_oob_ops *ops);//oob数据读写
 	int (*write_oob) (struct mtd_info *mtd, loff_t to,
 			 struct mtd_oob_ops *ops);
 
@@ -210,17 +210,17 @@ struct mtd_info {
 	/* kvec-based read/write methods.
 	   NB: The 'count' parameter is the number of _vectors_, each of
 	   which contains an (ofs, len) tuple.
-	*/
+	*/ //基于kevc的读写方法
 	int (*writev) (struct mtd_info *mtd, const struct kvec *vecs, unsigned long count, loff_t to, size_t *retlen);
 
-	/* Sync */
+	/* Sync */ //MTD设备的同步函数
 	void (*sync) (struct mtd_info *mtd);
 
-	/* Chip-supported device locking */
+	/* Chip-supported device locking */ //芯片加锁和解锁
 	int (*lock) (struct mtd_info *mtd, loff_t ofs, uint64_t len);
 	int (*unlock) (struct mtd_info *mtd, loff_t ofs, uint64_t len);
 
-	/* Power Management functions */
+	/* Power Management functions */ //电源管理函数
 	int (*suspend) (struct mtd_info *mtd);
 	void (*resume) (struct mtd_info *mtd);
 
@@ -235,7 +235,7 @@ struct mtd_info {
 	/* Subpage shift (NAND) */
 	int subpage_sft;
 
-	void *priv;
+	void *priv;  //设备私有数据指针，对于nand来说是nand芯片的结构 nand_chip
 
 	struct module *owner;
 	struct device dev;

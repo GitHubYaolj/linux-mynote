@@ -293,7 +293,7 @@ static int __videobuf_mmap_mapper(struct videobuf_queue *q,
 	MAGIC_CHECK(mem->magic, MAGIC_VMAL_MEM);
 
 	pages = PAGE_ALIGN(vma->vm_end - vma->vm_start);
-	mem->vmalloc = vmalloc_user(pages);
+	mem->vmalloc = vmalloc_user(pages);//给缓冲区分配了物理地址
 	if (!mem->vmalloc) {
 		printk(KERN_ERR "vmalloc (%d pages) failed\n", pages);
 		goto error;
@@ -302,7 +302,7 @@ static int __videobuf_mmap_mapper(struct videobuf_queue *q,
 		mem->vmalloc, pages);
 
 	/* Try to remap memory */
-	retval = remap_vmalloc_range(vma, mem->vmalloc, 0);
+	retval = remap_vmalloc_range(vma, mem->vmalloc, 0);//物理地址与虚拟地址建立映射关系
 	if (retval < 0) {
 		printk(KERN_ERR "mmap: remap failed with error %d. ", retval);
 		vfree(mem->vmalloc);

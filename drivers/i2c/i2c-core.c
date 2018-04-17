@@ -1182,7 +1182,7 @@ int i2c_probe(struct i2c_adapter *adapter,
 
 	/* Force entries are done first, and are not affected by ignore
 	   entries */
-	if (address_data->forces) {
+	if (address_data->forces) {//强制任务存在这个设备
 		const unsigned short * const *forces = address_data->forces;
 		int kind;
 
@@ -1207,7 +1207,7 @@ int i2c_probe(struct i2c_adapter *adapter,
 	}
 
 	/* Stop here if we can't use SMBUS_QUICK */
-	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_QUICK)) {
+	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_QUICK)) {//判断adapter支不支持SMBUS_QUICK
 		if (address_data->probe[0] == I2C_CLIENT_END
 		 && address_data->normal_i2c[0] == I2C_CLIENT_END)
 			return 0;

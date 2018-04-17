@@ -55,7 +55,7 @@ int usb_choose_configuration(struct usb_device *udev)
 
 		/* It's possible that a config has no interfaces! */
 		if (c->desc.bNumInterfaces > 0)
-			desc = &c->intf_cache[0]->altsetting->desc;
+			desc = &c->intf_cache[0]->altsetting->desc;//接口0的接口描述符
 
 		/*
 		 * HP's USB bus-powered keyboard has only one configuration
@@ -163,7 +163,7 @@ static int generic_probe(struct usb_device *udev)
 	else {
 		c = usb_choose_configuration(udev);
 		if (c >= 0) {
-			err = usb_set_configuration(udev, c);
+			err = usb_set_configuration(udev, c);//设置配置，并注册接口
 			if (err) {
 				dev_err(&udev->dev, "can't set config #%d, error %d\n",
 					c, err);

@@ -471,8 +471,9 @@ static int ep_scan_ready_list(struct eventpoll *ep,
 	 */
 	spin_lock_irqsave(&ep->lock, flags);
 	list_splice_init(&ep->rdllist, &txlist);
-	ep->ovflist = NULL;
-	spin_unlock_irqrestore(&ep->lock, flags);
+	ep->ovflist = NULL;//set ep->ovflist to NULL so that events happening while looping w/out locks, are not lost
+    //ep->ovflist设置为NULL直至将events传至用户空间后在设置为EP_UNACTIVE_PTR，这段时间的epoll触发都链接至ep->ovflist
+    spin_unlock_irqrestore(&ep->lock, flags);
 
 	/*
 	 * Now call the callback function.
@@ -501,7 +502,7 @@ static int ep_scan_ready_list(struct eventpoll *ep,
 	 * releasing the lock, events will be queued in the normal way inside
 	 * ep->rdllist.
 	 */
-	ep->ovflist = EP_UNACTIVE_PTR;
+	ep->ovflist = EP_UNACTIVE_PTR;//与上面设置为NULL呼应
 
 	/*
 	 * Quickly re-inject items left on "txlist".
@@ -819,7 +820,7 @@ static int ep_poll_callback(wait_queue_t *wait, unsigned mode, int sync, void *k
 	 * semantics). All the events that happens during that period of time are
 	 * chained in ep->ovflist and requeued later on.
 	 */
-	if (unlikely(ep->ovflist != EP_UNACTIVE_PTR)) {
+	if (unlikely(ep->ovflist != EP_UNACTIVE_PTR)) {//在ep_scan_ready_list中list_splice_init(&ep->rdllist, &txlist);期间会被设置为NULL
 		if (epi->next == EP_UNACTIVE_PTR) {
 			epi->next = ep->ovflist;
 			ep->ovflist = epi;
@@ -1148,7 +1149,7 @@ retry:
 		 * ep_poll_callback() when events will become available.
 		 */
 		init_waitqueue_entry(&wait, current);
-		wait.flags |= WQ_FLAG_EXCLUSIVE;
+		wait.flags |= WQ_FLAG_EXCLUSIVE;// Exclusive !! 将exclusive的元素加入到等待队列队尾 ，避免惊群!!很重要
 		__add_wait_queue(&ep->wq, &wait);
 
 		for (;;) {

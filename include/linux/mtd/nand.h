@@ -364,32 +364,40 @@ struct nand_buffers {
  */
 
 struct nand_chip {
-	void  __iomem	*IO_ADDR_R;
+	void  __iomem	*IO_ADDR_R;   //nand flash读写寄存器
 	void  __iomem	*IO_ADDR_W;
-
+//从NAND 芯片读一个字节或一个字，通常MTD 会在读取NAND 芯片的ID ，STATUS 和OOB 中的坏块信息时调用这两个函数，
+//具体是这样的流程，首先MTD 调用cmdfunc 函数，发起相应的命令，NAND 芯片收到命令后就会做好准备，最后MTD 就会调用read_byte 或read_word 函数从NAND 芯片中读取芯片的ID ，STATUS 或者OOB
 	uint8_t		(*read_byte)(struct mtd_info *mtd);
 	u16		(*read_word)(struct mtd_info *mtd);
+//从NAND 芯片读取数据到buffer、把buffer 中的数据写入到NAND 芯片、和从NAND 芯片中读取数据并验证
 	void		(*write_buf)(struct mtd_info *mtd, const uint8_t *buf, int len);
 	void		(*read_buf)(struct mtd_info *mtd, uint8_t *buf, int len);
 	int		(*verify_buf)(struct mtd_info *mtd, const uint8_t *buf, int len);
+//因为系统中可能有不止一片NAND 芯片，所以在对NAND 芯片进行操作前，需要这个函数来指定一片NAND 芯片
 	void		(*select_chip)(struct mtd_info *mtd, int chip);
 	int		(*block_bad)(struct mtd_info *mtd, loff_t ofs, int getchip);
 	int		(*block_markbad)(struct mtd_info *mtd, loff_t ofs);
 	void		(*cmd_ctrl)(struct mtd_info *mtd, int dat,
 				    unsigned int ctrl);
 	int		(*dev_ready)(struct mtd_info *mtd);
+//向NAND 芯片发起命令
 	void		(*cmdfunc)(struct mtd_info *mtd, unsigned command, int column, int page_addr);
+//NAND 芯片在接收到命令后，并不一定能立即响应NAND controller 的下一步动作，
+//对有些命令，比如erase ，program 等命令，NAND 芯片需要一定的时间来完成，所以就需要这个waitfunc 来等待NAND 芯片完成命令，并再次进入准备好状态
 	int		(*waitfunc)(struct mtd_info *mtd, struct nand_chip *this);
 	void		(*erase_cmd)(struct mtd_info *mtd, int page);
 	int		(*scan_bbt)(struct mtd_info *mtd);
 	int		(*errstat)(struct mtd_info *mtd, struct nand_chip *this, int state, int status, int page);
-	int		(*write_page)(struct mtd_info *mtd, struct nand_chip *chip,
+//把一个page 的数据写入NAND 芯片，这个函数一般不需我们实现，
+//因为它会调用struct nand_ecc_ctrl 中的write_page_raw 或者write_page 函数
+    int		(*write_page)(struct mtd_info *mtd, struct nand_chip *chip,
 				      const uint8_t *buf, int page, int cached, int raw);
 
-	int		chip_delay;
+	int		chip_delay;     //芯片时序延迟参数
 	unsigned int	options;
 
-	int		page_shift;
+	int		page_shift;    //页偏移，对于512byte/page,一般为9
 	int		phys_erase_shift;
 	int		bbt_erase_shift;
 	int		chip_shift;

@@ -2929,7 +2929,7 @@ static void end_bio_bh_io_sync(struct bio *bio, int err)
 
 int submit_bh(int rw, struct buffer_head * bh)
 {
-	struct bio *bio;
+	struct bio *bio;//定义一个bio(block input output),也就是块设备i/o
 	int ret = 0;
 
 	BUG_ON(!buffer_locked(bh));
@@ -2954,22 +2954,22 @@ int submit_bh(int rw, struct buffer_head * bh)
 	 * submit_bio -> generic_make_request may further map this bio around
 	 */
 	bio = bio_alloc(GFP_NOIO, 1);
-
-	bio->bi_sector = bh->b_blocknr * (bh->b_size >> 9);
-	bio->bi_bdev = bh->b_bdev;
-	bio->bi_io_vec[0].bv_page = bh->b_page;
-	bio->bi_io_vec[0].bv_len = bh->b_size;
-	bio->bi_io_vec[0].bv_offset = bh_offset(bh);
+    //根据buffer_head配置bio
+	bio->bi_sector = bh->b_blocknr * (bh->b_size >> 9);//逻辑块号
+	bio->bi_bdev = bh->b_bdev;                         //块设备
+	bio->bi_io_vec[0].bv_page = bh->b_page;            //缓冲区所在物理页面
+	bio->bi_io_vec[0].bv_len = bh->b_size;             //扇区大小
+	bio->bi_io_vec[0].bv_offset = bh_offset(bh);       //扇区内偏移量
 
 	bio->bi_vcnt = 1;
 	bio->bi_idx = 0;
 	bio->bi_size = bh->b_size;
 
-	bio->bi_end_io = end_bio_bh_io_sync;
+	bio->bi_end_io = end_bio_bh_io_sync;               //io回调函数
 	bio->bi_private = bh;
 
 	bio_get(bio);
-	submit_bio(rw, bio);
+	submit_bio(rw, bio);                               //提交bio
 
 	if (bio_flagged(bio, BIO_EOPNOTSUPP))
 		ret = -EOPNOTSUPP;
@@ -3009,7 +3009,7 @@ void ll_rw_block(int rw, int nr, struct buffer_head *bhs[])
 	int i;
 
 	for (i = 0; i < nr; i++) {
-		struct buffer_head *bh = bhs[i];
+		struct buffer_head *bh = bhs[i];//获取nr个buffer_head( 缓冲区描述符 )
 
 		if (rw == SWRITE || rw == SWRITE_SYNC || rw == SWRITE_SYNC_PLUG)
 			lock_buffer(bh);
@@ -3024,7 +3024,7 @@ void ll_rw_block(int rw, int nr, struct buffer_head *bhs[])
 				if (rw == SWRITE_SYNC)
 					submit_bh(WRITE_SYNC, bh);
 				else
-					submit_bh(WRITE, bh);
+					submit_bh(WRITE, bh);//提交writer标志的buffer_head
 				continue;
 			}
 		} else {

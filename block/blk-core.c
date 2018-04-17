@@ -1175,7 +1175,7 @@ static int __make_request(struct request_queue *q, struct bio *bio)
 	if (unlikely(bio_barrier(bio)) || elv_queue_empty(q))
 		goto get_rq;
 
-	el_ret = elv_merge(q, &req, bio);
+	el_ret = elv_merge(q, &req, bio);//将q和bio通过排序(电梯算法)，合并至req中
 	switch (el_ret) {
 	case ELEVATOR_BACK_MERGE:
 		BUG_ON(!rq_mergeable(req));
@@ -1263,7 +1263,7 @@ get_rq:
 	add_request(q, req);
 out:
 	if (unplug || !queue_should_plug(q))
-		__generic_unplug_device(q);
+		__generic_unplug_device(q);//执行q的成员request_fn()函数
 	spin_unlock_irq(q->queue_lock);
 	return 0;
 }
@@ -1417,7 +1417,7 @@ static inline void __generic_make_request(struct bio *bio)
 	do {
 		char b[BDEVNAME_SIZE];
 
-		q = bdev_get_queue(bio->bi_bdev);
+		q = bdev_get_queue(bio->bi_bdev);//通过bio的块设备获取request_queue
 		if (unlikely(!q)) {
 			printk(KERN_ERR
 			       "generic_make_request: Trying to access "
@@ -1467,7 +1467,7 @@ static inline void __generic_make_request(struct bio *bio)
 			goto end_io;
 		}
 
-		ret = q->make_request_fn(q, bio);
+		ret = q->make_request_fn(q, bio);//编写块驱动时提供
 	} while (ret);
 
 	return;
@@ -1489,8 +1489,8 @@ end_io:
  */
 void generic_make_request(struct bio *bio)
 {
-	if (current->bio_tail) {
-		/* make_request is active */
+	if (current->bio_tail) {           //有bio正在提交(bio_tail为struct bio ** 结构)
+		/* make_request is active */   //将该bio加入bio_tail
 		*(current->bio_tail) = bio;
 		bio->bi_next = NULL;
 		current->bio_tail = &bio->bi_next;
@@ -1521,7 +1521,7 @@ void generic_make_request(struct bio *bio)
 			current->bio_tail = &current->bio_list;
 		else
 			bio->bi_next = NULL;
-		__generic_make_request(bio);
+		__generic_make_request(bio);//由bio对应的block_device获取申请队列q，最后调用q的成员函数make_request_fn完成bio的递交
 		bio = current->bio_list;
 	} while (bio);
 	current->bio_tail = NULL; /* deactivate */
@@ -1566,7 +1566,7 @@ void submit_bio(int rw, struct bio *bio)
 		}
 	}
 
-	generic_make_request(bio);
+	generic_make_request(bio);//把bio数据提交到相应块设备的请求队列中
 }
 EXPORT_SYMBOL(submit_bio);
 

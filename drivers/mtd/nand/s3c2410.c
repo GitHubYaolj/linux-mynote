@@ -678,7 +678,7 @@ static void s3c2410_nand_init_chip(struct s3c2410_nand_info *info,
 {
 	struct nand_chip *chip = &nmtd->chip;
 	void __iomem *regs = info->regs;
-
+    //以下都是对chip赋值，对应nand_chip中的函数
 	chip->write_buf    = s3c2410_nand_write_buf;
 	chip->read_buf     = s3c2410_nand_read_buf;
 	chip->select_chip  = s3c2410_nand_select_chip;
@@ -697,13 +697,13 @@ static void s3c2410_nand_init_chip(struct s3c2410_nand_info *info,
 		break;
 
 	case TYPE_S3C2440:
-		chip->IO_ADDR_W = regs + S3C2440_NFDATA;
-		info->sel_reg   = regs + S3C2440_NFCONT;
+		chip->IO_ADDR_W = regs + S3C2440_NFDATA;//数据寄存器
+		info->sel_reg   = regs + S3C2440_NFCONT;//控制寄存器
 		info->sel_bit	= S3C2440_NFCONT_nFCE;
-		chip->cmd_ctrl  = s3c2440_nand_hwcontrol;
-		chip->dev_ready = s3c2440_nand_devready;
-		chip->read_buf  = s3c2440_nand_read_buf;
-		chip->write_buf	= s3c2440_nand_write_buf;
+		chip->cmd_ctrl  = s3c2440_nand_hwcontrol;//硬件控制
+		chip->dev_ready = s3c2440_nand_devready;//设备就绪
+		chip->read_buf  = s3c2440_nand_read_buf;//读buf
+		chip->write_buf	= s3c2440_nand_write_buf;//写buf
 		break;
 
 	case TYPE_S3C2412:
@@ -719,10 +719,10 @@ static void s3c2410_nand_init_chip(struct s3c2410_nand_info *info,
 		break;
   	}
 
-	chip->IO_ADDR_R = chip->IO_ADDR_W;
+	chip->IO_ADDR_R = chip->IO_ADDR_W;//读写寄存器是同一个
 
 	nmtd->info	   = info;
-	nmtd->mtd.priv	   = chip;
+	nmtd->mtd.priv	   = chip;//mtd私有数据指向chip
 	nmtd->mtd.owner    = THIS_MODULE;
 	nmtd->set	   = set;
 
@@ -896,12 +896,12 @@ static int s3c24xx_nand_probe(struct platform_device *pdev,
 		s3c2410_nand_init_chip(info, nmtd, sets);
 
 		nmtd->scan_res = nand_scan_ident(&nmtd->mtd,
-						 (sets) ? sets->nr_chips : 1);
+						 (sets) ? sets->nr_chips : 1);//完成对flash的探测
 
 		if (nmtd->scan_res == 0) {
 			s3c2410_nand_update_chip(info, nmtd);
-			nand_scan_tail(&nmtd->mtd);
-			s3c2410_nand_add_partition(info, nmtd, sets);
+			nand_scan_tail(&nmtd->mtd);//mtd_info读写函数的赋值,chip_info chip->ecc.read_page/write_page函数赋值(根据ecc模式)
+			s3c2410_nand_add_partition(info, nmtd, sets);//add_mtd_device
 		}
 
 		if (sets != NULL)

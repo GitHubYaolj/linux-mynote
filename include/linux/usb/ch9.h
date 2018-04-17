@@ -307,7 +307,7 @@ struct usb_interface_descriptor {
 	__u8  bLength;
 	__u8  bDescriptorType;
 
-	__u8  bInterfaceNumber;
+	__u8  bInterfaceNumber;    //该接口的编号
 	__u8  bAlternateSetting;
 	__u8  bNumEndpoints;
 	__u8  bInterfaceClass;

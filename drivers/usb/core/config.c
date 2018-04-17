@@ -323,7 +323,7 @@ static int usb_parse_configuration(struct device *ddev, int cfgidx,
 		    config->desc.bDescriptorType, config->desc.bLength);
 		return -EINVAL;
 	}
-	cfgno = config->desc.bConfigurationValue;
+	cfgno = config->desc.bConfigurationValue;//set_configuration命令所需要的参数值
 
 	buffer += config->desc.bLength;
 	size -= config->desc.bLength;
@@ -341,7 +341,8 @@ static int usb_parse_configuration(struct device *ddev, int cfgidx,
 	n = 0;
 	for ((buffer2 = buffer, size2 = size);
 	      size2 > 0;
-	     (buffer2 += header->bLength, size2 -= header->bLength)) {
+	     (buffer2 += header->bLength, size2 -= header->bLength)) 
+    {
 
 		if (size2 < sizeof(struct usb_descriptor_header)) {
 			dev_warn(ddev, "config %d descriptor has %d excess "
@@ -391,7 +392,8 @@ static int usb_parse_configuration(struct device *ddev, int cfgidx,
 				++n;
 			}
 
-		} else if (header->bDescriptorType ==
+		}
+        else if (header->bDescriptorType ==
 				USB_DT_INTERFACE_ASSOCIATION) {
 			if (iad_num == USB_MAXIADS) {
 				dev_warn(ddev, "found more Interface "
@@ -405,7 +407,8 @@ static int usb_parse_configuration(struct device *ddev, int cfgidx,
 				iad_num++;
 			}
 
-		} else if (header->bDescriptorType == USB_DT_DEVICE ||
+		} 
+        else if (header->bDescriptorType == USB_DT_DEVICE ||
 			    header->bDescriptorType == USB_DT_CONFIG)
 			dev_warn(ddev, "config %d contains an unexpected "
 			    "descriptor of type 0x%X, skipping\n",

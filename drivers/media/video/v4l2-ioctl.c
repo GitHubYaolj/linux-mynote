@@ -643,7 +643,7 @@ static long __video_do_ioctl(struct file *file,
 
 	switch (cmd) {
 	/* --- capabilities ------------------------------------------ */
-	case VIDIOC_QUERYCAP:
+	case VIDIOC_QUERYCAP://查询视频设备的设备能力
 	{
 		struct v4l2_capability *cap = (struct v4l2_capability *)arg;
 
@@ -685,7 +685,7 @@ static long __video_do_ioctl(struct file *file,
 	}
 
 	/* --- capture ioctls ---------------------------------------- */
-	case VIDIOC_ENUM_FMT:
+	case VIDIOC_ENUM_FMT://查询视频设备输出格式
 	{
 		struct v4l2_fmtdesc *f = arg;
 
@@ -722,7 +722,7 @@ static long __video_do_ioctl(struct file *file,
 				f->description);
 		break;
 	}
-	case VIDIOC_G_FMT:
+	case VIDIOC_G_FMT://获取视频采集格式
 	{
 		struct v4l2_format *f = (struct v4l2_format *)arg;
 
@@ -779,7 +779,7 @@ static long __video_do_ioctl(struct file *file,
 
 		break;
 	}
-	case VIDIOC_S_FMT:
+	case VIDIOC_S_FMT://设置视频采集格式
 	{
 		struct v4l2_format *f = (struct v4l2_format *)arg;
 
@@ -912,7 +912,7 @@ static long __video_do_ioctl(struct file *file,
 	   with some changes on videobuf to allow its header to be included at
 	   videodev2.h or being merged at videodev2.
 	 */
-	case VIDIOC_REQBUFS:
+	case VIDIOC_REQBUFS://申请内核空间的视频缓冲区
 	{
 		struct v4l2_requestbuffers *p = arg;
 
@@ -932,7 +932,7 @@ static long __video_do_ioctl(struct file *file,
 				prt_names(p->memory, v4l2_memory_names));
 		break;
 	}
-	case VIDIOC_QUERYBUF:
+	case VIDIOC_QUERYBUF://查询内核空间视频缓冲区信息
 	{
 		struct v4l2_buffer *p = arg;
 
@@ -947,7 +947,7 @@ static long __video_do_ioctl(struct file *file,
 			dbgbuf(cmd, vfd, p);
 		break;
 	}
-	case VIDIOC_QBUF:
+	case VIDIOC_QBUF://投放一个空的视频缓冲区到视频输入队列
 	{
 		struct v4l2_buffer *p = arg;
 
@@ -962,7 +962,7 @@ static long __video_do_ioctl(struct file *file,
 			dbgbuf(cmd, vfd, p);
 		break;
 	}
-	case VIDIOC_DQBUF:
+	case VIDIOC_DQBUF://从视频缓冲输出队列获取一个有视频数据的视频缓冲区
 	{
 		struct v4l2_buffer *p = arg;
 
@@ -1014,7 +1014,7 @@ static long __video_do_ioctl(struct file *file,
 		ret = ops->vidioc_s_fbuf(file, fh, arg);
 		break;
 	}
-	case VIDIOC_STREAMON:
+	case VIDIOC_STREAMON://启动视频采集
 	{
 		enum v4l2_buf_type i = *(int *)arg;
 

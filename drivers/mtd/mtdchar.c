@@ -814,8 +814,8 @@ static int mtd_mmap(struct file *file, struct vm_area_struct *vma)
 static const struct file_operations mtd_fops = {
 	.owner		= THIS_MODULE,
 	.llseek		= mtd_lseek,
-	.read		= mtd_read,
-	.write		= mtd_write,
+	.read		= mtd_read,  // mtd->read = nand_read; --> chip->ecc.read_page
+	.write		= mtd_write, // mtd->write = nand_write; --> ecc.write_page
 	.ioctl		= mtd_ioctl,
 	.open		= mtd_open,
 	.release	= mtd_close,

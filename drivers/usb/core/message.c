@@ -1745,7 +1745,7 @@ free_interfaces:
 
 		intf->cur_altsetting = alt;
 		usb_enable_interface(dev, intf, true);
-		intf->dev.parent = &dev->dev;
+		intf->dev.parent = &dev->dev;//一个usb_device代表一个usb设备，也就是它的多个接口都对应一个usb_device
 		intf->dev.driver = NULL;
 		intf->dev.bus = &usb_bus_type;
 		intf->dev.type = &usb_if_device_type;

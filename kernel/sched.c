@@ -5232,7 +5232,7 @@ void __wake_up_common(wait_queue_head_t *q, unsigned int mode,
 
 		if (curr->func(curr, mode, sync, key) &&
 				(flags & WQ_FLAG_EXCLUSIVE) && !--nr_exclusive)
-			break;
+			break;//WQ_FLAG_EXCLUSIVE 这里避免了惊群发生，如多个进程阻塞在 accepte
 	}
 }
 

@@ -2838,7 +2838,7 @@ static void hub_port_connect_change(struct usb_hub *hub, int port1,
 		/* reallocate for each attempt, since references
 		 * to the previous one can escape in various ways
 		 */
-		udev = usb_alloc_dev(hdev, hdev->bus, port1);
+		udev = usb_alloc_dev(hdev, hdev->bus, port1);//ÉèÖÃÁËdevµÄbus,type,group
 		if (!udev) {
 			dev_err (hub_dev,
 				"couldn't allocate port %d usb_device\n",
