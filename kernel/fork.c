@@ -310,9 +310,11 @@ static int dup_mmap(struct mm_struct *mm, struct mm_struct *oldmm)
 				goto fail_nomem;
 			charge = len;
 		}
-		tmp = kmem_cache_alloc(vm_area_cachep, GFP_KERNEL);
+		tmp = kmem_cache_alloc(vm_area_cachep, GFP_KERNEL);//分配一个新的虚拟地址空间
 		if (!tmp)
 			goto fail_nomem;
+        //将父进程的虚拟地址空间拷贝到新分配的虚拟地址空间中去，并将新分配的虚拟地址空间插入到新进程内存空间中去，
+        //这里有两种数据结构，一种是链表用于方便的遍历所有的虚拟地址空间，另一种是红黑树，用来快速的找出适合的虚拟地址空间块
 		*tmp = *mpnt;
 		pol = mpol_dup(vma_policy(mpnt));
 		retval = PTR_ERR(pol);
@@ -356,11 +358,13 @@ static int dup_mmap(struct mm_struct *mm, struct mm_struct *oldmm)
 		*pprev = tmp;
 		pprev = &tmp->vm_next;
 
-		__vma_link_rb(mm, tmp, rb_link, rb_parent);
+		__vma_link_rb(mm, tmp, rb_link, rb_parent);//加入红黑树
 		rb_link = &tmp->vm_rb.rb_right;
 		rb_parent = &tmp->vm_rb;
 
 		mm->map_count++;
+         //最后进行重新映射,要是没有这项(页表复制)的话，即使有合法访问的虚拟存储区域，
+         //但是没有正确的页表，不能访问到具体的物理内存，所以为了能建立正确的页映射，使进程能够访问到具体的物理页
 		retval = copy_page_range(mm, oldmm, mpnt);
 
 		if (tmp->vm_ops && tmp->vm_ops->open)

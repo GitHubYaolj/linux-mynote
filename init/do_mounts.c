@@ -353,8 +353,8 @@ void __init mount_root(void)
 	}
 #endif
 #ifdef CONFIG_BLOCK
-	create_dev("/dev/root", ROOT_DEV);
-	mount_block_root("/dev/root", root_mountflags);
+	create_dev("/dev/root", ROOT_DEV); //在rootfs中建立/dev/root设备文件，也就是/dev/mtdblock0设备
+	mount_block_root("/dev/root", root_mountflags); //挂载/dev/root到rootfs的/root目录
 #endif
 }
 
@@ -386,7 +386,7 @@ void __init prepare_namespace(void)
 		root_device_name = saved_root_name;
 		if (!strncmp(root_device_name, "mtd", 3) ||
 		    !strncmp(root_device_name, "ubi", 3)) {
-			mount_block_root(root_device_name, root_mountflags);
+			mount_block_root(root_device_name, root_mountflags); //启动时root=参数，如《四.2》中“root=/dev/mtdblock0”  
 			goto out;
 		}
 		ROOT_DEV = name_to_dev_t(root_device_name);
@@ -394,7 +394,7 @@ void __init prepare_namespace(void)
 			root_device_name += 5;
 	}
 
-	if (initrd_load())
+	if (initrd_load())    //如果挂载initrd并执行成功，则不再挂载磁盘文件系统
 		goto out;
 
 	/* wait for any asynchronous scanning to complete */
@@ -412,9 +412,9 @@ void __init prepare_namespace(void)
 	if (is_floppy && rd_doload && rd_load_disk(0))
 		ROOT_DEV = Root_RAM0;
 
-	mount_root();
+	mount_root();  //将实际文件系统挂载到rootfs的/root目录
 out:
 	sys_mount(".", "/", NULL, MS_MOVE, NULL);
-	sys_chroot(".");
+	sys_chroot("."); //将当前目录(/root)设置为系统current根目录，磁盘文件系统设置为系统current根文件系统。  
 }
 

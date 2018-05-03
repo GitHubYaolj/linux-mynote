@@ -331,21 +331,21 @@ struct uvc_device;
  */
 struct uvc_streaming_control {
 	__u16 bmHint;
-	__u8  bFormatIndex;
-	__u8  bFrameIndex;
-	__u32 dwFrameInterval;
+	__u8  bFormatIndex;//视频格式索引
+	__u8  bFrameIndex; //视频帧索引
+	__u32 dwFrameInterval;//视频帧间隔
 	__u16 wKeyFrameRate;
 	__u16 wPFrameRate;
 	__u16 wCompQuality;
 	__u16 wCompWindowSize;
-	__u16 wDelay;
-	__u32 dwMaxVideoFrameSize;
+	__u16 wDelay;//延时
+	__u32 dwMaxVideoFrameSize;//最大视频帧大小
 	__u32 dwMaxPayloadTransferSize;
-	__u32 dwClockFrequency;
+	__u32 dwClockFrequency;//时钟频率
 	__u8  bmFramingInfo;
 	__u8  bPreferedVersion;
-	__u8  bMinVersion;
-	__u8  bMaxVersion;
+	__u8  bMinVersion;//版本
+	__u8  bMaxVersion;//版本
 };
 
 struct uvc_menu_info {

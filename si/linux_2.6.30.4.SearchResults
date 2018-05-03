@@ -1,6 +1,1 @@
----- mmap_mapper Matches (5 in 5 files) ----
-Videobuf-core.c (drivers\media\video):	retval = CALL(q, mmap_mapper, q, vma);
-Videobuf-core.h (include\media):	int (*mmap_mapper)	(struct videobuf_queue *q,
-Videobuf-dma-contig.c (drivers\media\video):	.mmap_mapper  = __videobuf_mmap_mapper,
-Videobuf-dma-sg.c (drivers\media\video):	.mmap_mapper  = __videobuf_mmap_mapper,
-Videobuf-vmalloc.c (drivers\media\video):	.mmap_mapper  = __videobuf_mmap_mapper,
+---- root_dev_names Matches (0 in 0 files) ----

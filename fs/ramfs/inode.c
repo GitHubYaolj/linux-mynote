@@ -95,7 +95,9 @@ struct inode *ramfs_get_inode(struct super_block *sb, int mode, dev_t dev)
 static int
 ramfs_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t dev)
 {
-	struct inode * inode = ramfs_get_inode(dir->i_sb, mode, dev);
+	struct inode * inode = ramfs_get_inode(dir->i_sb, mode, dev);//得到一个新的inode 
+	            //sb跟inode的关系，inode->i_sb=sb    sb->s_inddes链表中有inode->i_sb_list  
+                //inode->i_rdev=dev  设备号 
 	int error = -ENOSPC;
 
 	if (inode) {
@@ -104,7 +106,7 @@ ramfs_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t dev)
 			if (S_ISDIR(mode))
 				inode->i_mode |= S_ISGID;
 		}
-		d_instantiate(dentry, inode);
+		d_instantiate(dentry, inode);    //将生成的inode挂至dentry上   dentry->d_inode=inode  
 		dget(dentry);	/* Extra count - pin the dentry in core */
 		error = 0;
 		dir->i_mtime = dir->i_ctime = CURRENT_TIME;

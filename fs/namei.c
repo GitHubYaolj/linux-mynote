@@ -536,7 +536,7 @@ static __always_inline int link_path_walk(const char *name, struct nameidata *nd
 	int result;
 
 	/* make sure the stuff we saved doesn't go away */
-	path_get(&save);
+	path_get(&save); //保存信息，出错的时候可以纠正
 
 	result = __link_path_walk(name, nd);
 	if (result == -ESTALE) {
@@ -825,6 +825,30 @@ fail:
  * Returns 0 and nd will have valid dentry and mnt on success.
  * Returns error and drops reference to input namei data on failure.
  */
+/*
+ 一开始假设我们进来的/dev/mtdchar1，是根目录，进来的第一件事是去掉根目录，
+ 剩下dev/mtdchar1，然后进入一个大循环，这个为什么要大循环呢，作用就是把路径一层一层给剥掉。
+ dev/mtdchar1剥成dev和mtdchar1，这个过程就是while (c && (c != '/'))这个小循环里干的，
+ 在这个小循环里将路径转换成hash，通过err = do_lookup(nd, &this, &next);去查找dentry和mnt，
+ 也就是根据this里的hash值去nd里面查相对应的dentry，没有的话，创建一个，
+ 创建的dentry->d_parent=nd->dentry。关于dentry，后面有空再分析吧，比较烦的。
+接下来path_to_nameidata(&next, nd);这个函数的功能一目了然，就是将next中的值赋予nd，
+这时候nd指向下一个路径。比如/dev/mtdchar1 ，第一进入大循环的时候，nd是根目录"/"，
+那么经过这一步后，nd就是“dev”了，即nd->dentry->d_name.name=“dev”。continue，进入第二次大循环。
+
+如果if (!c)    goto last_component;//最后一项了。this.hash的值为mtdchar1。
+如果nd->flag==LOOKUP_PARENT的话，就进入lookup_parent,对了在很久很久之前，
+前到我边写边忘记，还得查查。sys_mknodat里的do_path_lookup，也就是第一段代码里，
+标志了LOOKUP_PARENT。直接就返回了，不干什么事。
+
+我们总结一下nd哪些东西变了，最最重要的变化，nd->dentry这个不再是根目录了，
+它变成了路径最后一个目录了，这里具体一点，nd->dentry->d_name.name=“dev”,
+这说明dentry再也不是刚进来的那个清纯少年了。还有nd->last,这个参数里保存了路径最后一个节点的信息。
+nd->last.name=“mtdchar1”，hash=hash(mtdchar1)。nd的flag跟last_type也有了变化。
+总之nd已有点面目全非，快要最终目的了。
+例如这里的nd->dentry->d_name.name=“dev”,nd->last.name=“mtdchar1”，hash=hash(mtdchar1)
+
+*/
 static int __link_path_walk(const char *name, struct nameidata *nd)
 {
 	struct path next;
@@ -861,7 +885,7 @@ static int __link_path_walk(const char *name, struct nameidata *nd)
 		c = *(const unsigned char *)name;
 
 		hash = init_name_hash();
-		do {
+		do {        //一个路径一个路径的hash。比如dev/mtdchar1，先dev三个字符hash一下，去查找
 			name++;
 			hash = partial_name_hash(c, hash);
 			c = *(const unsigned char *)name;
@@ -871,7 +895,7 @@ static int __link_path_walk(const char *name, struct nameidata *nd)
 
 		/* remove trailing slashes? */
 		if (!c)
-			goto last_component;
+			goto last_component;  //如果是最后一项了，比如已经到mtdchar1了 
 		while (*++name == '/');
 		if (!*name)
 			goto last_with_slashes;
@@ -904,7 +928,8 @@ static int __link_path_walk(const char *name, struct nameidata *nd)
 				break;
 		}
 		/* This does the actual lookups.. */
-		err = do_lookup(nd, &this, &next);
+		err = do_lookup(nd, &this, &next);//根据name.hash查找dentry和mnt，next指向这些  
+                            //比如/dev/mtdchar1 ，第一次这里先找到了dev的dentry和mnt 
 		if (err)
 			break;
 
@@ -1031,7 +1056,7 @@ static int do_path_lookup(int dfd, const char *name,
 
 	if (*name=='/') {//获取根目录
 		read_lock(&fs->lock);
-		nd->path = fs->root;
+		nd->path = fs->root; //init_mount_tree()中的set_fs_root(current->fs, &root);
 		path_get(&fs->root);
 		read_unlock(&fs->lock);
 	} else if (dfd == AT_FDCWD) {//获取当前目录
@@ -1949,7 +1974,7 @@ int vfs_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t dev)
 		return error;
 
 	vfs_dq_init(dir);
-	error = dir->i_op->mknod(dir, dentry, mode, dev);
+	error = dir->i_op->mknod(dir, dentry, mode, dev);//比如 ramfs_mknod
 	if (!error)
 		fsnotify_create(dir, dentry);
 	return error;
@@ -1971,7 +1996,7 @@ static int may_mknod(mode_t mode)
 		return -EINVAL;
 	}
 }
-
+//https://blog.csdn.net/fenglifeng1987/article/details/8108413
 SYSCALL_DEFINE4(mknodat, int, dfd, const char __user *, filename, int, mode,
 		unsigned, dev)
 {
@@ -1983,11 +2008,11 @@ SYSCALL_DEFINE4(mknodat, int, dfd, const char __user *, filename, int, mode,
 	if (S_ISDIR(mode))
 		return -EPERM;
 
-	error = user_path_parent(dfd, filename, &nd, &tmp);
+	error = user_path_parent(dfd, filename, &nd, &tmp);//filename copy至内核空间tmp, do_path_lookup
 	if (error)
 		return error;
 
-	dentry = lookup_create(&nd, 0);
+	dentry = lookup_create(&nd, 0);//生成一个新的dentry,父节点是nd->dentry,dentry->d_name=nd->last。
 	if (IS_ERR(dentry)) {
 		error = PTR_ERR(dentry);
 		goto out_unlock;
@@ -2009,7 +2034,7 @@ SYSCALL_DEFINE4(mknodat, int, dfd, const char __user *, filename, int, mode,
 			break;
 		case S_IFCHR: case S_IFBLK:
 			error = vfs_mknod(nd.path.dentry->d_inode,dentry,mode,
-					new_decode_dev(dev));
+					new_decode_dev(dev)); //生成一个inode挂载到dentry
 			break;
 		case S_IFIFO: case S_IFSOCK:
 			error = vfs_mknod(nd.path.dentry->d_inode,dentry,mode,0);
