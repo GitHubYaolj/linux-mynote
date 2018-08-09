@@ -565,6 +565,7 @@ static void __init clean_rootfs(void)
 }
 #endif
 
+//解压initramfs到rootfs, initramfs必须包含init文件，否则还将挂载其他的文件系统
 static int __init populate_rootfs(void)
 {
 	char *err = unpack_to_rootfs(__initramfs_start,

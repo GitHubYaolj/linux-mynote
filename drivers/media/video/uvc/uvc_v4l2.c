@@ -491,7 +491,7 @@ static long uvc_v4l2_do_ioctl(struct file *file, unsigned int cmd, void *arg)
 		usb_make_path(video->dev->udev,
 			      cap->bus_info, sizeof(cap->bus_info));
 		cap->version = DRIVER_VERSION_NUMBER;
-		if (video->streaming->type == V4L2_BUF_TYPE_VIDEO_CAPTURE)
+		if (video->streaming->type == V4L2_BUF_TYPE_VIDEO_CAPTURE)// video->streaming->type 应该是在设备被枚举时分析描述符时设置的
 			cap->capabilities = V4L2_CAP_VIDEO_CAPTURE
 					  | V4L2_CAP_STREAMING;
 		else
@@ -684,7 +684,7 @@ static long uvc_v4l2_do_ioctl(struct file *file, unsigned int cmd, void *arg)
 		fmt->index = index;
 		fmt->type = type;
 
-		format = &video->streaming->format[fmt->index];
+		format = &video->streaming->format[fmt->index];// format数组应是在设备被枚举时设置的
 		fmt->flags = 0;
 		if (format->flags & UVC_FMT_FLAG_COMPRESSED)
 			fmt->flags |= V4L2_FMT_FLAG_COMPRESSED;
@@ -709,10 +709,10 @@ static long uvc_v4l2_do_ioctl(struct file *file, unsigned int cmd, void *arg)
 		if ((ret = uvc_acquire_privileges(handle)) < 0)
 			return ret;
 
-		return uvc_v4l2_set_format(video, arg);
+		return uvc_v4l2_set_format(video, arg);// 只是把参数保存起来，还没有发给USB摄像头
 
 	case VIDIOC_G_FMT:
-		return uvc_v4l2_get_format(video, arg);
+		return uvc_v4l2_get_format(video, arg);// USB摄像头支持多种格式fromat, 每种格式下有多种frame(比如分辨率)
 
 	/* Frame size enumeration */
 	case VIDIOC_ENUM_FRAMESIZES:
@@ -839,7 +839,7 @@ static long uvc_v4l2_do_ioctl(struct file *file, unsigned int cmd, void *arg)
 		return -EINVAL;
 
 	/* Buffers & streaming */
-	case VIDIOC_REQBUFS:
+	case VIDIOC_REQBUFS:   //请求分配缓冲区（缓冲区个数）
 	{
 		struct v4l2_requestbuffers *rb = arg;
 		unsigned int bufsize =
@@ -897,7 +897,7 @@ static long uvc_v4l2_do_ioctl(struct file *file, unsigned int cmd, void *arg)
 		if (!uvc_has_privileges(handle))
 			return -EBUSY;
 
-		if ((ret = uvc_video_enable(video, 1)) < 0)
+		if ((ret = uvc_video_enable(video, 1)) < 0)// 把所设置的参数发给硬件,然后启动摄像头
 			return ret;
 		break;
 	}

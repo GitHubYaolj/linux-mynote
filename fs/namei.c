@@ -1158,7 +1158,7 @@ int vfs_path_lookup(struct dentry *dentry, struct vfsmount *mnt,
 static int path_lookup_open(int dfd, const char *name,
 		unsigned int lookup_flags, struct nameidata *nd, int open_flags)
 {
-	struct file *filp = get_empty_filp();
+	struct file *filp = get_empty_filp();//分配file类型空间
 	int err;
 
 	if (filp == NULL)
@@ -2012,7 +2012,7 @@ SYSCALL_DEFINE4(mknodat, int, dfd, const char __user *, filename, int, mode,
 	if (error)
 		return error;
 
-	dentry = lookup_create(&nd, 0);//生成一个新的dentry,父节点是nd->dentry,dentry->d_name=nd->last。
+	dentry = lookup_create(&nd, 0);//生成一个新的dentry,父节点是nd->path->dentry,dentry->d_name=nd->last。
 	if (IS_ERR(dentry)) {
 		error = PTR_ERR(dentry);
 		goto out_unlock;

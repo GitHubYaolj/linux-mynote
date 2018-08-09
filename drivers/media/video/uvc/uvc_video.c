@@ -227,8 +227,8 @@ static int uvc_set_video_ctrl(struct uvc_video_device *video,
 		data[33] = ctrl->bMaxVersion;
 	}
 
-	ret = __uvc_query_ctrl(video->dev, SET_CUR, 0,
-		video->streaming->intfnum,
+	ret = __uvc_query_ctrl(video->dev/* 哪一个USB设备 */, SET_CUR, 0,
+		video->streaming->intfnum/* 哪一个接口: VS */,
 		probe ? VS_PROBE_CONTROL : VS_COMMIT_CONTROL, data, size,
 		UVC_CTRL_STREAMING_TIMEOUT);
 	if (ret != size) {
@@ -306,7 +306,7 @@ done:
 int uvc_commit_video(struct uvc_video_device *video,
 	struct uvc_streaming_control *probe)
 {
-	return uvc_set_video_ctrl(video, probe, 0);
+	return uvc_set_video_ctrl(video, probe, 0);//设置格式fromat, frame
 }
 
 /* ------------------------------------------------------------------------
@@ -913,7 +913,7 @@ static int uvc_init_video(struct uvc_video_device *video, gfp_t gfp_flags)
 	video->bulk.skip_payload = 0;
 	video->bulk.payload_size = 0;
 
-	if (intf->num_altsetting > 1) {
+	if (intf->num_altsetting > 1) {//同步方式
 		/* Isochronous endpoint, select the alternate setting. */
 		bandwidth = video->streaming->ctrl.dwMaxPayloadTransferSize;
 
@@ -945,7 +945,7 @@ static int uvc_init_video(struct uvc_video_device *video, gfp_t gfp_flags)
 			return ret;
 
 		ret = uvc_init_video_isoc(video, ep, gfp_flags);
-	} else {
+	} else {//bulk方式
 		/* Bulk endpoint, proceed to URB initialization. */
 		ep = uvc_find_endpoint(&intf->altsetting[0],
 				video->streaming->header.bEndpointAddress);
@@ -1146,13 +1146,13 @@ int uvc_video_enable(struct uvc_video_device *video, int enable)
 	else
 		video->queue.flags |= UVC_QUEUE_DROP_INCOMPLETE;
 
-	if ((ret = uvc_queue_enable(&video->queue, 1)) < 0)
+	if ((ret = uvc_queue_enable(&video->queue, 1)) < 0)//uvc使能队列
 		return ret;
 
 	/* Commit the streaming parameters. */
-	if ((ret = uvc_commit_video(video, &video->streaming->ctrl)) < 0)
+	if ((ret = uvc_commit_video(video, &video->streaming->ctrl)) < 0)//uvc提交视频参数
 		return ret;
 
-	return uvc_init_video(video, GFP_KERNEL);
+	return uvc_init_video(video, GFP_KERNEL);//uvc初始化视频
 }
 

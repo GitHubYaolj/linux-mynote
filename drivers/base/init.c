@@ -20,17 +20,17 @@
 void __init driver_init(void)
 {
 	/* These are the core pieces */
-	devices_init();
-	buses_init();
-	classes_init();
-	firmware_init();
-	hypervisor_init();
+	devices_init();// sys/devices  sys/dev   sys/dev/block sys/dev/char
+	buses_init();  // sys/bus
+	classes_init();// sys/class
+	firmware_init();//sys/firmware
+	hypervisor_init();//sys/hypervisor
 
 	/* These are also core pieces, but must come after the
 	 * core core pieces.
 	 */
-	platform_bus_init();
-	system_bus_init();
-	cpu_dev_init();
-	memory_dev_init();
+	platform_bus_init(); //sys/devices/platform
+	system_bus_init();   //sys/devices/system
+	cpu_dev_init();      //sys/devices/system/cpu
+	memory_dev_init();   //sys/devices/system/memory
 }

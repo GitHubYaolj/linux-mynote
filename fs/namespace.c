@@ -2292,7 +2292,7 @@ void __init mnt_init(void)
 	if (!fs_kobj)
 		printk(KERN_WARNING "%s: kobj create error\n", __func__);
 	init_rootfs();
-	init_mount_tree();
+	init_mount_tree();//注册了类型为rootfs的fs  kernel_init->do_basic_setup->do_initcalls 调用 rootfs_initcall 注册过的函数 populate_rootfs
 }
 
 void __put_mnt_ns(struct mnt_namespace *ns)

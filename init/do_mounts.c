@@ -216,7 +216,7 @@ static void __init get_fs_names(char *page)
 
 static int __init do_mount_root(char *name, char *fs, int flags, void *data)
 {
-	int err = sys_mount(name, "/root", fs, flags, data);
+	int err = sys_mount(name, "/root", fs, flags, data);//https://blog.csdn.net/nanaoxue/article/details/37054663
 	if (err)
 		return err;
 
@@ -239,7 +239,7 @@ void __init mount_block_root(char *name, int flags)
 	const char *b = name;
 #endif
 
-	get_fs_names(fs_names);
+	get_fs_names(fs_names);/*从命令行获取"rootfstype=根文件系统的类型，本例是jffs2*/
 retry:
 	for (p = fs_names; *p; p += strlen(p)+1) {
 		int err = do_mount_root(name, p, flags, root_mount_data);

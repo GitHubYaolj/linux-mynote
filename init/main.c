@@ -870,7 +870,7 @@ static int __init kernel_init(void * unused)
 	smp_init();
 	sched_init_smp();
 
-	do_basic_setup();
+	do_basic_setup();// !!! 调用所有模块的初始化函数，包括initramfs的初始化函数populate_rootfs
 
 	/*
 	 * check if there is an early userspace init.  If yes, let it do all
@@ -882,7 +882,7 @@ static int __init kernel_init(void * unused)
 
 	if (sys_access((const char __user *) ramdisk_execute_command, 0) != 0) {
 		ramdisk_execute_command = NULL;
-		prepare_namespace();
+		prepare_namespace();//挂载根文件系统
 	}
 
 	/*
