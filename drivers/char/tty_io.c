@@ -1808,6 +1808,7 @@ retry_open:
 	}
 
 	driver = get_tty_driver(device, &index);//根据device的主次设备号，确定driver,根据device-base确定index
+	//注意: console_driver->minor_start = 1  所以tty1的index为0 tty2的index为1
 	if (!driver) {
 		mutex_unlock(&tty_mutex);
 		return -ENODEV;

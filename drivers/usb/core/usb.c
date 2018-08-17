@@ -95,7 +95,7 @@ struct usb_interface *usb_ifnum_to_if(const struct usb_device *dev,
 			return config->interface[i];
 
 	return NULL;
-}
+} 
 EXPORT_SYMBOL_GPL(usb_ifnum_to_if);
 
 /**
@@ -1015,19 +1015,19 @@ static int __init usb_init(void)
 	retval = ksuspend_usb_init();
 	if (retval)
 		goto out;
-	retval = bus_register(&usb_bus_type);
+	retval = bus_register(&usb_bus_type); //sys/bus/usb
 	if (retval)
 		goto bus_register_failed;
 	retval = bus_register_notifier(&usb_bus_type, &usb_bus_nb);
 	if (retval)
 		goto bus_notifier_failed;
-	retval = usb_host_init();
+	retval = usb_host_init(); //sys/class/usb_host
 	if (retval)
 		goto host_init_failed;
 	retval = usb_major_init();
 	if (retval)
 		goto major_init_failed;
-	retval = usb_register(&usbfs_driver);
+	retval = usb_register(&usbfs_driver);// sys/bus/usb/drivers/usbfs
 	if (retval)
 		goto driver_register_failed;
 	retval = usb_devio_init();
@@ -1036,10 +1036,10 @@ static int __init usb_init(void)
 	retval = usbfs_init();
 	if (retval)
 		goto fs_init_failed;
-	retval = usb_hub_init();
+	retval = usb_hub_init(); // sys/bus/usb/drivers/hub
 	if (retval)
 		goto hub_init_failed;
-	retval = usb_register_device_driver(&usb_generic_driver, THIS_MODULE);//USB设备级别驱动(对应接口级别)
+	retval = usb_register_device_driver(&usb_generic_driver, THIS_MODULE);// sys/bus/usb/drivers/usb //USB设备级别驱动(对应接口级别)
 	if (!retval)
 		goto out;
 

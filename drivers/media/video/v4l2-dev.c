@@ -582,7 +582,7 @@ static int __init videodev_init(void)
 		return ret;
 	}
 
-	ret = class_register(&video_class);
+	ret = class_register(&video_class); // sys/class/video4linux
 	if (ret < 0) {
 		unregister_chrdev_region(dev, VIDEO_NUM_DEVICES);
 		printk(KERN_WARNING "video_dev: class_register failed\n");

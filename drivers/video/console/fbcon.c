@@ -3026,7 +3026,7 @@ static int fbcon_fb_registered(struct fb_info *info)
 {
 	int ret = 0, i, idx;
 
-	idx = info->node;
+	idx = info->node;//info->nodeÈ¡¾öÓÚregistered_fb[i]
 	fbcon_select_primary(info);
 
 	if (info_idx == -1) {

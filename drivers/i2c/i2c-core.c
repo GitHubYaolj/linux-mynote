@@ -468,7 +468,7 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
 	dev_set_name(&adap->dev, "i2c-%d", adap->nr);
 	adap->dev.release = &i2c_adapter_dev_release;
 	adap->dev.class = &i2c_adapter_class;
-	res = device_register(&adap->dev);
+	res = device_register(&adap->dev);// sys/bus/platform/devices/s3c2440-i2c/i2c0
 	if (res)
 		goto out_list;
 

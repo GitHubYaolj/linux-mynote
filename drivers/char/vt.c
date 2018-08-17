@@ -766,7 +766,7 @@ int vc_allocate(unsigned int currcons)	/* return 0 on success */
 		return -ENOMEM;
 	    vc_cons[currcons].d = vc;
 	    INIT_WORK(&vc_cons[currcons].SAK_work, vc_SAK);
-	    visual_init(vc, currcons, 1);
+	    visual_init(vc, currcons, 1);//vc->vc_sw->con_init(vc, init);
 	    if (!*vc->vc_uni_pagedir_loc)
 		con_set_default_unimap(vc);
 	    if (!vc->vc_kmalloced)
@@ -3421,7 +3421,7 @@ int register_con_driver(const struct consw *csw, int first, int last)
 	if (retval)
 		goto err;
 
-	desc = csw->con_startup();
+	desc = csw->con_startup();//fbcon_fb_registered -> fbcon_takeover -> fbcon_startup
 
 	if (!desc)
 		goto err;
@@ -3528,7 +3528,7 @@ int take_over_console(const struct consw *csw, int first, int last, int deflt)
 	err = register_con_driver(csw, first, last);
 
 	if (!err)
-		bind_con_driver(csw, first, last, deflt);
+		bind_con_driver(csw, first, last, deflt);//registered_fb[i] ºÍ registered_con_driver[i]°ó¶¨
 
 	return err;
 }

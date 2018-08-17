@@ -844,7 +844,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
 	/* setup info block for the i2c core */
 
 	i2c->adap.algo_data = i2c;
-	i2c->adap.dev.parent = &pdev->dev;
+	i2c->adap.dev.parent = &pdev->dev;    // sys/bus/platform/devices/s3c2440-i2c/i2c0
 
 	/* initialise the i2c controller */
     /*s3c24xx_i2c结构体变量i2c的必要的信息都填充完了以后，开始进行初始化*/  

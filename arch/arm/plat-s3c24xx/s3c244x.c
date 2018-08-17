@@ -182,7 +182,7 @@ struct sysdev_class s3c2442_sysclass = {
 
 static int __init s3c2440_core_init(void)
 {
-	return sysdev_class_register(&s3c2440_sysclass);
+	return sysdev_class_register(&s3c2440_sysclass);//sys/devices/system/s3c2440-core
 }
 
 core_initcall(s3c2440_core_init);

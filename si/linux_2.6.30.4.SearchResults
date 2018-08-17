@@ -1,18 +1,4 @@
----- spi_board_info Matches (17 in 9 files) ----
-Ds1305.h (include\linux\spi): * Put a pointer to this in spi_board_info.platform_data if you want to
-Max3100.c (drivers\serial): static struct spi_board_info spi_board_info[] = {
-Serial_max3100.h (include\linux): * static struct spi_board_info spi_board_info[] = {
-Spi.c (drivers\spi):	struct spi_board_info	board_info[0];
-Spi.c (drivers\spi):				  struct spi_board_info *chip)
-Spi.c (drivers\spi):spi_register_board_info(struct spi_board_info const *info, unsigned n)
-Spi.c (drivers\spi):		struct spi_board_info	*chip = bi->board_info;
-Spi.h (include\linux\spi): * struct spi_board_info - board-specific template for a SPI device
-Spi.h (include\linux\spi):struct spi_board_info {
-Spi.h (include\linux\spi):spi_register_board_info(struct spi_board_info const *info, unsigned n);
-Spi.h (include\linux\spi):spi_register_board_info(struct spi_board_info const *info, unsigned n)
-Spi.h (include\linux\spi):spi_new_device(struct spi_master *, struct spi_board_info *);
-Spi_butterfly.c (drivers\spi):	struct spi_board_info	info[2];
-Spi_gpio.h (include\linux\spi): * Use spi_board_info with these busses in the usual way, being sure
-Spi_gpio.h (include\linux\spi): *	static struct spi_board_info ... [] = {
-Spi_imx.c (drivers\spi):			/* spi_board_info.controller_data not is supplied */
-Spi_lm70llp.c (drivers\spi):	struct spi_board_info	info;
+---- fb_console_init Matches (3 in 1 files) ----
+Fbcon.c (drivers\video\console):	 * fb_console_init();
+Fbcon.c (drivers\video\console):static int __init fb_console_init(void)
+Fbcon.c (drivers\video\console):module_init(fb_console_init);

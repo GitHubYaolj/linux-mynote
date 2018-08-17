@@ -48,5 +48,5 @@ int __init s3c2440_init(void)
 
 	/* register our system device for everything else */
 
-	return sysdev_register(&s3c2440_sysdev);
+	return sysdev_register(&s3c2440_sysdev);//sys/devices/system/s3c2440-core/s3cc2440-core0
 }
