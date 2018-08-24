@@ -31,7 +31,7 @@
  * TASK_SIZE - the maximum size of a user space task.
  * TASK_UNMAPPED_BASE - the lower boundary of the mmap VM area
  */
-#define PAGE_OFFSET		UL(CONFIG_PAGE_OFFSET)
+#define PAGE_OFFSET		UL(CONFIG_PAGE_OFFSET)   //0xc0000000, µÚ3GµÄµØÖ· 
 #define TASK_SIZE		(UL(CONFIG_PAGE_OFFSET) - UL(0x01000000))
 #define TASK_UNMAPPED_BASE	(UL(CONFIG_PAGE_OFFSET) / 3)
 
@@ -119,13 +119,13 @@
  * private definitions which should NOT be used outside memory.h
  * files.  Use virt_to_phys/phys_to_virt/__pa/__va instead.
  */
-#define __virt_to_phys(x)	((x) - PAGE_OFFSET + PHYS_OFFSET)
+#define __virt_to_phys(x)	((x) - PAGE_OFFSET + PHYS_OFFSET)  // x - 0xc0000000 + 0x30000000
 #define __phys_to_virt(x)	((x) - PHYS_OFFSET + PAGE_OFFSET)
 
 /*
  * Convert a physical address to a Page Frame Number and back
  */
-#define	__phys_to_pfn(paddr)	((paddr) >> PAGE_SHIFT)
+#define	__phys_to_pfn(paddr)	((paddr) >> PAGE_SHIFT)   // 1page=4k  paddr/4096
 #define	__pfn_to_phys(pfn)	((pfn) << PAGE_SHIFT)
 
 #ifndef __ASSEMBLY__

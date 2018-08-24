@@ -396,7 +396,7 @@ int register_mtd_blktrans(struct mtd_blktrans_ops *tr)
 
 	for (i=0; i<MAX_MTD_DEVICES; i++) {
 		if (mtd_table[i] && mtd_table[i]->type != MTD_ABSENT)
-			tr->add_mtd(tr, mtd_table[i]);
+			tr->add_mtd(tr, mtd_table[i]);//Ôö¼Ó /dev/blockN
 	}
 
 	mutex_unlock(&mtd_table_mutex);
