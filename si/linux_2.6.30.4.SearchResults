@@ -1,21 +1,10 @@
----- mtd_table Matches (22 in 3 files) ----
-Mtdcore.c (drivers\mtd):struct mtd_info *mtd_table[MAX_MTD_DEVICES];
-Mtdcore.c (drivers\mtd):EXPORT_SYMBOL_GPL(mtd_table);
-Mtdcore.c (drivers\mtd):		if (!mtd_table[i]) {
-Mtdcore.c (drivers\mtd):			mtd_table[i] = mtd;
-Mtdcore.c (drivers\mtd):				mtd_table[i] = NULL;
-Mtdcore.c (drivers\mtd):	if (mtd_table[mtd->index] != mtd) {
-Mtdcore.c (drivers\mtd):		mtd_table[mtd->index] = NULL;
-Mtdcore.c (drivers\mtd):		if (mtd_table[i])
-Mtdcore.c (drivers\mtd):			new->add(mtd_table[i]);
-Mtdcore.c (drivers\mtd):		if (mtd_table[i])
-Mtdcore.c (drivers\mtd):			old->remove(mtd_table[i]);
-Mtdcore.c (drivers\mtd):			if (mtd_table[i] == mtd)
-Mtdcore.c (drivers\mtd):				ret = mtd_table[i];
-Mtdcore.c (drivers\mtd):		ret = mtd_table[num];
-Mtdcore.c (drivers\mtd):		if (mtd_table[i] && !strcmp(name, mtd_table[i]->name)) {
-Mtdcore.c (drivers\mtd):			mtd = mtd_table[i];
-Mtdcore.c (drivers\mtd):	struct mtd_info *this = mtd_table[i];
-Mtdcore.h (drivers\mtd):extern struct mtd_info *mtd_table[MAX_MTD_DEVICES];
-Mtd_blkdevs.c (drivers\mtd):		if (mtd_table[i] && mtd_table[i]->type != MTD_ABSENT)
-Mtd_blkdevs.c (drivers\mtd):			tr->add_mtd(tr, mtd_table[i]);
+---- input_register_handler Matches (9 in 7 files) ----
+Apm-power.c (drivers\input):	return input_register_handler(&apmpower_handler);
+Evbug.c (drivers\input):	return input_register_handler(&evbug_handler);
+Evdev.c (drivers\input):	return input_register_handler(&evdev_handler);
+Input.c (drivers\input): * input_register_handler - register a new input handler
+Input.c (drivers\input):int input_register_handler(struct input_handler *handler)
+Input.c (drivers\input):EXPORT_SYMBOL(input_register_handler);
+Input.h (include\linux):int __must_check input_register_handler(struct input_handler *);
+Joydev.c (drivers\input):	return input_register_handler(&joydev_handler);
+Mousedev.c (drivers\input):	error = input_register_handler(&mousedev_handler);

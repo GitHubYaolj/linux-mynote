@@ -612,7 +612,9 @@ static struct i2c_driver at24_driver = {
 		.name = "at24",
 		.owner = THIS_MODULE,
 	},
-	.probe = at24_probe,
+	.probe = at24_probe, // i2c_add_driver ->driver_register ->bus_add_driver ->driver_attach ->driver_probe_device(drv, dev) ->
+	                     //   really_probe -> dev->bus->probe(dev) ->i2c_device_probe
+	                     // bus下的dev何时创建? 添加i2c_register_board_info(0, smdk_i2c_devices, ARRAY_SIZE(smdk_i2c_devices));
 	.remove = __devexit_p(at24_remove),
 	.id_table = at24_ids,
 };

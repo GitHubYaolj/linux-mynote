@@ -1675,7 +1675,7 @@ static int __init input_init(void)
 
 	input_init_abs_bypass();
 
-	err = class_register(&input_class);
+	err = class_register(&input_class); // sys/class/input
 	if (err) {
 		printk(KERN_ERR "input: unable to register input_dev class\n");
 		return err;
@@ -1685,7 +1685,7 @@ static int __init input_init(void)
 	if (err)
 		goto fail1;
 
-	err = register_chrdev(INPUT_MAJOR, "input", &input_fops);
+	err = register_chrdev(INPUT_MAJOR, "input", &input_fops); // 字符设备13的驱动
 	if (err) {
 		printk(KERN_ERR "input: unable to register char major %d", INPUT_MAJOR);
 		goto fail2;

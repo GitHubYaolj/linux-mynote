@@ -1182,7 +1182,7 @@ int i2c_probe(struct i2c_adapter *adapter,
 
 	/* Force entries are done first, and are not affected by ignore
 	   entries */
-	if (address_data->forces) {//强制任务存在这个设备
+	if (address_data->forces) {//强制认为存在这个设备
 		const unsigned short * const *forces = address_data->forces;
 		int kind;
 

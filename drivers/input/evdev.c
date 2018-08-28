@@ -821,7 +821,7 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
 	evdev->dev.class = &input_class;
 	evdev->dev.parent = &dev->dev;
 	evdev->dev.release = evdev_free;
-	device_initialize(&evdev->dev);
+	device_initialize(&evdev->dev); 
 
 	error = input_register_handle(&evdev->handle);
 	if (error)
@@ -831,7 +831,7 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
 	if (error)
 		goto err_unregister_handle;
 
-	error = device_add(&evdev->dev);
+	error = device_add(&evdev->dev);// sys/class/input/eventN
 	if (error)
 		goto err_cleanup_evdev;
 
@@ -868,7 +868,7 @@ static struct input_handler evdev_handler = {
 	.connect	= evdev_connect,
 	.disconnect	= evdev_disconnect,
 	.fops		= &evdev_fops,
-	.minor		= EVDEV_MINOR_BASE,
+	.minor		= EVDEV_MINOR_BASE, // 64>>5 input_table[2]=evdev_handler
 	.name		= "evdev",
 	.id_table	= evdev_ids,
 };

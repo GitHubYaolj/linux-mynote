@@ -141,7 +141,8 @@ static inline void s3c24xx_i2c_disable_irq(struct s3c24xx_i2c *i2c)
 static inline void s3c24xx_i2c_enable_irq(struct s3c24xx_i2c *i2c)
 {
 	unsigned long tmp;
-
+    
+    //将IICCON的D5位置1表示总线在接收或发送一个字节数据后会产生一个中断
 	tmp = readl(i2c->regs + S3C2410_IICCON);
 	writel(tmp | S3C2410_IICCON_IRQEN, i2c->regs + S3C2410_IICCON);
 }
@@ -189,7 +190,7 @@ static void s3c24xx_i2c_message_start(struct s3c24xx_i2c *i2c,
 	writel(iiccon, i2c->regs + S3C2410_IICCON);
 
 	stat |= S3C2410_IICSTAT_START;
-	writel(stat, i2c->regs + S3C2410_IICSTAT);//使能串行输出
+	writel(stat, i2c->regs + S3C2410_IICSTAT);//使能串行输出 //发送S信号，IICDS寄存器中数据自动发出，发送了一个从机地址
 }
 
 static inline void s3c24xx_i2c_stop(struct s3c24xx_i2c *i2c, int ret)
@@ -200,11 +201,11 @@ static inline void s3c24xx_i2c_stop(struct s3c24xx_i2c *i2c, int ret)
 
 	/* stop the transfer */
 	iicstat &= ~S3C2410_IICSTAT_START;
-	writel(iicstat, i2c->regs + S3C2410_IICSTAT);
+	writel(iicstat, i2c->regs + S3C2410_IICSTAT);//发送P
 
 	i2c->state = STATE_STOP;
 
-	s3c24xx_i2c_master_complete(i2c, ret);
+	s3c24xx_i2c_master_complete(i2c, ret);//恢复一些中间量，唤醒等待队列
 	s3c24xx_i2c_disable_irq(i2c);
 }
 
@@ -303,17 +304,18 @@ static int i2s_s3c_irq_nextbyte(struct s3c24xx_i2c *i2c, unsigned long iicstat)
 		 */
 
 		if (!(i2c->msg->flags & I2C_M_IGNORE_NAK)) {
+            //当没有接收到ACK应答信号，说明I2C设备不存在，应停止总线工作
 			if (iicstat & S3C2410_IICSTAT_LASTBIT) {
 				dev_dbg(i2c->dev, "WRITE: No Ack\n");
 
-				s3c24xx_i2c_stop(i2c, -ECONNREFUSED);
+				s3c24xx_i2c_stop(i2c, -ECONNREFUSED);//发送P,唤醒等待队列
 				goto out_ack;
 			}
 		}
 
  retry_write:
 
-		if (!is_msgend(i2c)) {
+		if (!is_msgend(i2c)) {//当前msg是否已经传输完
 			byte = i2c->msg->buf[i2c->msg_ptr++];
 			writeb(byte, i2c->regs + S3C2410_IICDS);
 
@@ -325,7 +327,7 @@ static int i2s_s3c_irq_nextbyte(struct s3c24xx_i2c *i2c, unsigned long iicstat)
 
 			ndelay(i2c->tx_setup);
 
-		} else if (!is_lastmsg(i2c)) {
+		} else if (!is_lastmsg(i2c)) {//还有msg要传输吗
 			/* we need to go to the next i2c message */
 
 			dev_dbg(i2c->dev, "WRITE: Next Message\n");
@@ -342,7 +344,7 @@ static int i2s_s3c_irq_nextbyte(struct s3c24xx_i2c *i2c, unsigned long iicstat)
 					 * forces us to send a new START
 					 * when we change direction */
 
-					s3c24xx_i2c_stop(i2c, -EINVAL);
+					s3c24xx_i2c_stop(i2c, -EINVAL);//发送P,唤醒等待队列
 				}
 
 				goto retry_write;
@@ -355,7 +357,7 @@ static int i2s_s3c_irq_nextbyte(struct s3c24xx_i2c *i2c, unsigned long iicstat)
 		} else {
 			/* send stop */
 
-			s3c24xx_i2c_stop(i2c, 0);
+			s3c24xx_i2c_stop(i2c, 0);//发送P,唤醒等待队列
 		}
 		break;
 
@@ -369,13 +371,13 @@ static int i2s_s3c_irq_nextbyte(struct s3c24xx_i2c *i2c, unsigned long iicstat)
 		i2c->msg->buf[i2c->msg_ptr++] = byte;
 
  prepare_read:
-		if (is_msglast(i2c)) {
+		if (is_msglast(i2c)) {//该msg的最后一个字节
 			/* last byte of buffer */
 
-			if (is_lastmsg(i2c))
+			if (is_lastmsg(i2c))//该msg是最后一个
 				s3c24xx_i2c_disable_ack(i2c);
 
-		} else if (is_msgend(i2c)) {
+		} else if (is_msgend(i2c)) {//该msg传输完
 			/* ok, we've read the entire buffer, see if there
 			 * is anything else we need to do */
 
@@ -383,7 +385,7 @@ static int i2s_s3c_irq_nextbyte(struct s3c24xx_i2c *i2c, unsigned long iicstat)
 				/* last message, send stop and complete */
 				dev_dbg(i2c->dev, "READ: Send Stop\n");
 
-				s3c24xx_i2c_stop(i2c, 0);
+				s3c24xx_i2c_stop(i2c, 0);//发送P,唤醒等待队列
 			} else {
 				/* go to the next transfer */
 				dev_dbg(i2c->dev, "READ: Next Transfer\n");
@@ -402,7 +404,7 @@ static int i2s_s3c_irq_nextbyte(struct s3c24xx_i2c *i2c, unsigned long iicstat)
  out_ack:
 	tmp = readl(i2c->regs + S3C2410_IICCON);
 	tmp &= ~S3C2410_IICCON_IRQPEND;
-	writel(tmp, i2c->regs + S3C2410_IICCON);
+	writel(tmp, i2c->regs + S3C2410_IICCON);//清中断
  out:
 	return ret;
 }
@@ -496,9 +498,10 @@ static int s3c24xx_i2c_doxfer(struct s3c24xx_i2c *i2c,
 	i2c->state   = STATE_START;
 
 	s3c24xx_i2c_enable_irq(i2c);//使能中断
-	s3c24xx_i2c_message_start(i2c, msgs);
+	s3c24xx_i2c_message_start(i2c, msgs);//发送启动信号，传输第一个字节
 	spin_unlock_irq(&i2c->lock);
 
+    //设置等待队列，直到i2c->msg_num == 0为真或5ms到来才被唤醒
 	timeout = wait_event_timeout(i2c->wait, i2c->msg_num == 0, HZ * 5);
 
 	ret = i2c->msg_idx;
@@ -528,7 +531,7 @@ static int s3c24xx_i2c_doxfer(struct s3c24xx_i2c *i2c,
 static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
 			struct i2c_msg *msgs, int num)
 {
-	struct s3c24xx_i2c *i2c = (struct s3c24xx_i2c *)adap->algo_data;
+	struct s3c24xx_i2c *i2c = (struct s3c24xx_i2c *)adap->algo_data; //i2c硬件资源 irq io , adapter probe时设置
 	int retry;
 	int ret;
 
