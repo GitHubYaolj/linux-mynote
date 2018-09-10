@@ -1585,7 +1585,7 @@ static int usb_configure_device(struct usb_device *udev)
 	int err;
 
 	if (udev->config == NULL) {
-		err = usb_get_configuration(udev);
+		err = usb_get_configuration(udev);//获取配置
 		if (err < 0) {
 			dev_err(&udev->dev, "can't read configurations, error %d\n",
 				err);
@@ -2619,7 +2619,7 @@ hub_port_init (struct usb_hub *hub, struct usb_device *udev, int port1,
 				break;
   		}
 
-		retval = usb_get_device_descriptor(udev, 8);
+		retval = usb_get_device_descriptor(udev, 8);//获得设备描述符的前8个字节
 		if (retval < 8) {
 			dev_err(&udev->dev,
 					"device descriptor read/8, error %d\n",
@@ -2648,7 +2648,7 @@ hub_port_init (struct usb_hub *hub, struct usb_device *udev, int port1,
 		usb_ep0_reinit(udev);
 	}
   
-	retval = usb_get_device_descriptor(udev, USB_DT_DEVICE_SIZE);
+	retval = usb_get_device_descriptor(udev, USB_DT_DEVICE_SIZE);//获取完整的设备描述符
 	if (retval < (signed)sizeof(udev->descriptor)) {
 		dev_err(&udev->dev, "device descriptor read/all, error %d\n",
 			retval);
@@ -2838,7 +2838,7 @@ static void hub_port_connect_change(struct usb_hub *hub, int port1,
 		/* reallocate for each attempt, since references
 		 * to the previous one can escape in various ways
 		 */
-		udev = usb_alloc_dev(hdev, hdev->bus, port1);//设置了dev的bus,type,group
+		udev = usb_alloc_dev(hdev, hdev->bus, port1);//设置了dev的bus,type,group  // hdev就是 usb1, udev是usb1/1-1
 		if (!udev) {
 			dev_err (hub_dev,
 				"couldn't allocate port %d usb_device\n",

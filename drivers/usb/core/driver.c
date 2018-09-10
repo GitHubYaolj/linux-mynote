@@ -592,7 +592,7 @@ static int usb_device_match(struct device *dev, struct device_driver *drv)
 	if (is_usb_device(dev)) {    //代表整个USB设备
 
 		/* interface drivers never match devices */
-		if (!is_usb_device_driver(drv))
+		if (!is_usb_device_driver(drv))//device driver 的for_devices为1,interface driver的for_devices位0
 			return 0;
 
 		/* TODO: Add real matching code */

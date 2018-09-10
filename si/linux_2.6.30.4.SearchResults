@@ -1,10 +1,37 @@
----- input_register_handler Matches (9 in 7 files) ----
-Apm-power.c (drivers\input):	return input_register_handler(&apmpower_handler);
-Evbug.c (drivers\input):	return input_register_handler(&evbug_handler);
-Evdev.c (drivers\input):	return input_register_handler(&evdev_handler);
-Input.c (drivers\input): * input_register_handler - register a new input handler
-Input.c (drivers\input):int input_register_handler(struct input_handler *handler)
-Input.c (drivers\input):EXPORT_SYMBOL(input_register_handler);
-Input.h (include\linux):int __must_check input_register_handler(struct input_handler *);
-Joydev.c (drivers\input):	return input_register_handler(&joydev_handler);
-Mousedev.c (drivers\input):	error = input_register_handler(&mousedev_handler);
+---- mtd_partition Matches (36 in 25 files) ----
+common-EmbedSky.c (arch\arm\plat-s3c24xx):static struct mtd_partition EmbedSky_default_nand_part[] = {
+Common-smdk.c (arch\arm\plat-s3c24xx):static struct mtd_partition smdk_default_nand_part[] = {
+Flash.h (arch\arm\include\asm\mach):struct mtd_partition;
+Flash.h (arch\arm\include\asm\mach):	struct mtd_partition *parts;
+Flash.h (include\linux\spi):struct mtd_partition;
+Flash.h (include\linux\spi):	struct mtd_partition *parts;
+Mach-amlm5900.c (arch\arm\mach-s3c2410):static struct mtd_partition amlm5900_mtd_partitions[] = {
+Mach-anubis.c (arch\arm\mach-s3c2440):static struct mtd_partition anubis_default_nand_part[] = {
+Mach-anubis.c (arch\arm\mach-s3c2440):static struct mtd_partition anubis_default_nand_part_large[] = {
+Mach-at2440evb.c (arch\arm\mach-s3c2440):static struct mtd_partition at2440evb_default_nand_part[] = {
+Mach-bast.c (arch\arm\mach-s3c2410):static struct mtd_partition bast_default_nand_part[] = {
+Mach-osiris.c (arch\arm\mach-s3c2440):static struct mtd_partition osiris_default_nand_part[] = {
+Mach-osiris.c (arch\arm\mach-s3c2440):static struct mtd_partition osiris_default_nand_part_large[] = {
+Mach-qt2410.c (arch\arm\mach-s3c2410):static struct mtd_partition qt2410_nand_part[] = {
+Mach-rx3715.c (arch\arm\mach-s3c2440):static struct mtd_partition rx3715_nand_part[] = {
+Mach-tct_hammer.c (arch\arm\mach-s3c2410):static struct mtd_partition tct_hammer_mtd_partitions[] = {
+Mtdpart.c (drivers\mtd):		const struct mtd_partition *part, int partno,
+Mtdpart.c (drivers\mtd):		       const struct mtd_partition *parts,
+Mtdpart.c (drivers\mtd):			 struct mtd_partition **pparts, unsigned long origin)
+Nand-gpio.h (include\linux\mtd):	struct mtd_partition *parts;
+Nand.h (arch\arm\plat-s3c\include\plat):	struct mtd_partition	*partitions;
+Nand.h (include\linux\mtd):	struct mtd_partition	*partitions;
+Ndfc.c (drivers\mtd\nand):	struct mtd_partition *parts;
+Partitions.h (include\linux\mtd):struct mtd_partition {
+Partitions.h (include\linux\mtd):int add_mtd_partitions(struct mtd_info *, const struct mtd_partition *, int);
+Partitions.h (include\linux\mtd):	int (*parse_fn)(struct mtd_info *, struct mtd_partition **, unsigned long);
+Partitions.h (include\linux\mtd):				struct mtd_partition **pparts, unsigned long origin);
+Partitions.h (include\linux\mtd):                                      struct mtd_partition **pparts);
+Physmap.h (include\linux\mtd):	struct mtd_partition	*parts;
+Physmap.h (include\linux\mtd):void physmap_set_partitions(struct mtd_partition *parts, int num_parts);
+Plat-ram.h (include\linux\mtd):	struct mtd_partition	*partitions;
+Plat_nand.c (drivers\mtd\nand):	struct mtd_partition	*parts;
+Sharpsl.h (include\linux\mtd):	struct mtd_partition	*partitions;
+Sh_flctl.h (include\linux\mtd):	struct mtd_partition	*parts;
+Spi_butterfly.c (drivers\spi):static struct mtd_partition partitions[] = { {
+Tmio.h (include\linux\mfd):	struct mtd_partition	*partition;

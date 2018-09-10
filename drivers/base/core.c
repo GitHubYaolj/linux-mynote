@@ -885,6 +885,7 @@ int device_add(struct device *dev)
 
 	parent = get_device(dev->parent);
 	setup_parent(dev, parent); // 如果dev设置了class，会建立目录/sys/devices/virtual/wwhsclass
+	                            //如果此时parent为null，会设置parent为/sys/devices/virtual,如果没有virtual，创建之
 
 	/* use parent numa_node */
 	if (parent)

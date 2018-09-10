@@ -42,7 +42,7 @@ static int find_next_descriptor(unsigned char *buffer, int size,
 		*num_skipped = n;
 	return buffer - buffer0;
 }
-
+//cfgno所属配置的index; inum所属接口的index; asnum所属alt的index
 static int usb_parse_endpoint(struct device *ddev, int cfgno, int inum,
     int asnum, struct usb_host_interface *ifp, int num_ep,
     unsigned char *buffer, int size)
@@ -218,7 +218,7 @@ static int usb_parse_interface(struct device *ddev, int cfgno,
 	inum = d->bInterfaceNumber;
 	for (i = 0; i < config->desc.bNumInterfaces; ++i) {
 		if (inums[i] == inum) {
-			intfc = config->intf_cache[i];
+			intfc = config->intf_cache[i];//根据接口编号找到intf_cache
 			break;
 		}
 	}
@@ -238,7 +238,7 @@ static int usb_parse_interface(struct device *ddev, int cfgno,
 		}
 	}
 
-	++intfc->num_altsetting;
+	++intfc->num_altsetting;//增加alt计数，主要和nalt[i]对比,也是下次添加alt的index
 	memcpy(&alt->desc, d, USB_DT_INTERFACE_SIZE);
 
 	/* Skip over any Class Specific or Vendor Specific descriptors;
@@ -266,7 +266,7 @@ static int usb_parse_interface(struct device *ddev, int cfgno,
 	if (num_ep > 0) {
 		/* Can't allocate 0 bytes */
 		len = sizeof(struct usb_host_endpoint) * num_ep;
-		alt->endpoint = kzalloc(len, GFP_KERNEL);
+		alt->endpoint = kzalloc(len, GFP_KERNEL);//给端点描述符分配空间
 		if (!alt->endpoint)
 			return -ENOMEM;
 	}
@@ -341,7 +341,7 @@ static int usb_parse_configuration(struct device *ddev, int cfgidx,
 	n = 0;
 	for ((buffer2 = buffer, size2 = size);
 	      size2 > 0;
-	     (buffer2 += header->bLength, size2 -= header->bLength)) 
+	     (buffer2 += header->bLength, size2 -= header->bLength)) //解析出各接口描述符，不包括下面的端点描述符
     {
 
 		if (size2 < sizeof(struct usb_descriptor_header)) {
@@ -359,7 +359,7 @@ static int usb_parse_configuration(struct device *ddev, int cfgidx,
 			break;
 		}
 
-		if (header->bDescriptorType == USB_DT_INTERFACE) {
+		if (header->bDescriptorType == USB_DT_INTERFACE) {//解析一个接口描述符
 			struct usb_interface_descriptor *d;
 			int inum;
 
@@ -371,7 +371,7 @@ static int usb_parse_configuration(struct device *ddev, int cfgidx,
 				continue;
 			}
 
-			inum = d->bInterfaceNumber;
+			inum = d->bInterfaceNumber;//该接口的编号
 			if (inum >= nintf_orig)
 				dev_warn(ddev, "config %d has an invalid "
 				    "interface number: %d but max is %d\n",
@@ -385,7 +385,7 @@ static int usb_parse_configuration(struct device *ddev, int cfgidx,
 			}
 			if (i < n) {
 				if (nalts[i] < 255)
-					++nalts[i];
+					++nalts[i];//该接口编号下有多个alt
 			} else if (n < USB_MAXINTERFACES) {
 				inums[n] = inum;
 				nalts[n] = 1;
@@ -448,7 +448,7 @@ static int usb_parse_configuration(struct device *ddev, int cfgidx,
 			nalts[i] = j = USB_MAXALTSETTING;
 		}
 
-		len = sizeof(*intfc) + sizeof(struct usb_host_interface) * j;
+		len = sizeof(*intfc) + sizeof(struct usb_host_interface) * j;//该接口下的usb_interface_cache所占空间，包括各alt
 		config->intf_cache[i] = intfc = kzalloc(len, GFP_KERNEL);
 		if (!intfc)
 			return -ENOMEM;
@@ -459,7 +459,7 @@ static int usb_parse_configuration(struct device *ddev, int cfgidx,
 	 * find the first interface descriptor */
 	config->extra = buffer;
 	i = find_next_descriptor(buffer, size, USB_DT_INTERFACE,
-	    USB_DT_INTERFACE, &n);
+	    USB_DT_INTERFACE, &n);//过滤掉不是interface的内容
 	config->extralen = i;
 	if (n > 0)
 		dev_dbg(ddev, "skipped %d descriptor%s after %s\n",
@@ -470,7 +470,7 @@ static int usb_parse_configuration(struct device *ddev, int cfgidx,
 	/* Parse all the interface/altsetting descriptors */
 	while (size > 0) {
 		retval = usb_parse_interface(ddev, cfgno, config,
-		    buffer, size, inums, nalts);
+		    buffer, size, inums, nalts);//挨个解析接口描述符，包括端点描述符
 		if (retval < 0)
 			return retval;
 
@@ -542,7 +542,7 @@ void usb_destroy_configuration(struct usb_device *dev)
 int usb_get_configuration(struct usb_device *dev)
 {
 	struct device *ddev = &dev->dev;
-	int ncfg = dev->descriptor.bNumConfigurations;
+	int ncfg = dev->descriptor.bNumConfigurations;//配置描述符的数量
 	int result = 0;
 	unsigned int cfgno, length;
 	unsigned char *buffer;
@@ -584,7 +584,7 @@ int usb_get_configuration(struct usb_device *dev)
 		/* We grab just the first descriptor so we know how long
 		 * the whole configuration is */
 		result = usb_get_descriptor(dev, USB_DT_CONFIG, cfgno,
-		    buffer, USB_DT_CONFIG_SIZE);
+		    buffer, USB_DT_CONFIG_SIZE);//获取第cfgno个配置描述符头，得到配置描述符的长度(包括下面的接口描述符和端点描述符)
 		if (result < 0) {
 			dev_err(ddev, "unable to read config index %d "
 			    "descriptor/%s: %d\n", cfgno, "start", result);
@@ -608,7 +608,7 @@ int usb_get_configuration(struct usb_device *dev)
 			goto err;
 		}
 		result = usb_get_descriptor(dev, USB_DT_CONFIG, cfgno,
-		    bigbuffer, length);
+		    bigbuffer, length);//获取第cfgno个配置描述符
 		if (result < 0) {
 			dev_err(ddev, "unable to read config index %d "
 			    "descriptor/%s\n", cfgno, "all");
@@ -624,7 +624,7 @@ int usb_get_configuration(struct usb_device *dev)
 		dev->rawdescriptors[cfgno] = bigbuffer;
 
 		result = usb_parse_configuration(&dev->dev, cfgno,
-		    &dev->config[cfgno], bigbuffer, length);
+		    &dev->config[cfgno], bigbuffer, length);//解析配置描述符，把各接口描述符、端点描述符配置到dev->config->intf_cache
 		if (result < 0) {
 			++cfgno;
 			goto err;

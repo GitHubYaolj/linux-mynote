@@ -377,19 +377,19 @@ struct usb_device *usb_alloc_dev(struct usb_device *parent,
 		dev->devpath[0] = '0';
 
 		dev->dev.parent = bus->controller;
-		dev_set_name(&dev->dev, "usb%d", bus->busnum);
+		dev_set_name(&dev->dev, "usb%d", bus->busnum);// devices/platform/s3c2410-ohci/usb1
 		root_hub = 1;
 	} else {
 		/* match any labeling on the hubs; it's one-based */
 		if (parent->devpath[0] == '0')
 			snprintf(dev->devpath, sizeof dev->devpath,
-				"%d", port1);
+				"%d", port1);// 1
 		else
 			snprintf(dev->devpath, sizeof dev->devpath,
 				"%s.%d", parent->devpath, port1);
 
 		dev->dev.parent = &parent->dev;
-		dev_set_name(&dev->dev, "%d-%s", bus->busnum, dev->devpath);
+		dev_set_name(&dev->dev, "%d-%s", bus->busnum, dev->devpath);//1-1
 
 		/* hub driver sets up TT records */
 	}
@@ -1024,19 +1024,19 @@ static int __init usb_init(void)
 	retval = usb_host_init(); //sys/class/usb_host
 	if (retval)
 		goto host_init_failed;
-	retval = usb_major_init();
+	retval = usb_major_init();//major 180
 	if (retval)
 		goto major_init_failed;
 	retval = usb_register(&usbfs_driver);// sys/bus/usb/drivers/usbfs
 	if (retval)
 		goto driver_register_failed;
-	retval = usb_devio_init();
+	retval = usb_devio_init();//major 189
 	if (retval)
 		goto usb_devio_init_failed;
 	retval = usbfs_init();
 	if (retval)
 		goto fs_init_failed;
-	retval = usb_hub_init(); // sys/bus/usb/drivers/hub
+	retval = usb_hub_init(); // sys/bus/usb/drivers/hub   run hub_thread
 	if (retval)
 		goto hub_init_failed;
 	retval = usb_register_device_driver(&usb_generic_driver, THIS_MODULE);// sys/bus/usb/drivers/usb //USB设备级别驱动(对应接口级别)

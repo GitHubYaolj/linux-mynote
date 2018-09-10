@@ -16,17 +16,17 @@
 /* interrupt controller is the first thing we put in, to make
  * the assembly code for the irq detection easier
  */
-#define S3C24XX_VA_IRQ	   S3C_VA_IRQ
+#define S3C24XX_VA_IRQ	   S3C_VA_IRQ   //0xf4000000
 #define S3C2410_PA_IRQ	   (0x4A000000)
 #define S3C24XX_SZ_IRQ	   SZ_1M
 
 /* memory controller registers */
-#define S3C24XX_VA_MEMCTRL S3C_VA_MEM
+#define S3C24XX_VA_MEMCTRL S3C_VA_MEM  //0xf4200000
 #define S3C2410_PA_MEMCTRL (0x48000000)
 #define S3C24XX_SZ_MEMCTRL SZ_1M
 
 /* UARTs */
-#define S3C24XX_VA_UART	   S3C_VA_UART
+#define S3C24XX_VA_UART	   S3C_VA_UART//0xf5000000  为什么不是线性映射呢?
 #define S3C2410_PA_UART	   (0x50000000)
 #define S3C24XX_SZ_UART	   SZ_1M
 #define S3C_UART_OFFSET	   (0x4000)
@@ -34,7 +34,7 @@
 #define S3C_VA_UARTx(uart) (S3C_VA_UART + ((uart * S3C_UART_OFFSET)))
 
 /* Timers */
-#define S3C24XX_VA_TIMER   S3C_VA_TIMER
+#define S3C24XX_VA_TIMER   S3C_VA_TIMER//0xf4300000
 #define S3C2410_PA_TIMER   (0x51000000)
 #define S3C24XX_SZ_TIMER   SZ_1M
 

@@ -1733,7 +1733,7 @@ free_interfaces:
 		intf->intf_assoc = find_iad(dev, cp, i);
 		kref_get(&intfc->ref);
 
-		alt = usb_altnum_to_altsetting(intf, 0);
+		alt = usb_altnum_to_altsetting(intf, 0);//选择当前interface所选中的alt,默认为altsetting[0]
 
 		/* No altsetting 0?  We'll assume the first altsetting.
 		 * We could use a GetInterface call, but if a device is
@@ -1756,7 +1756,7 @@ free_interfaces:
 		mark_quiesced(intf);
 		dev_set_name(&intf->dev, "%d-%s:%d.%d",
 			dev->bus->busnum, dev->devpath,
-			configuration, alt->desc.bInterfaceNumber);
+			configuration, alt->desc.bInterfaceNumber);//1-1:1.0
 	}
 	kfree(new_interfaces);
 

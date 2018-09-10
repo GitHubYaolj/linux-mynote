@@ -500,7 +500,7 @@ static int rh_call_control (struct usb_hcd *hcd, struct urb *urb)
 		}
 		status = hcd->driver->hub_control (hcd,
 			typeReq, wValue, wIndex,
-			tbuf, wLength);
+			tbuf, wLength);//ohci_s3c2410_hub_control
 		break;
 error:
 		/* "protocol stall" on error */
@@ -816,7 +816,7 @@ static int usb_register_bus(struct usb_bus *bus)
 		goto error_find_busnum;
 	}
 	set_bit (busnum, busmap.busmap);
-	bus->busnum = busnum;
+	bus->busnum = busnum;// 1->...
 
 	bus->dev = device_create(usb_host_class, bus->controller, MKDEV(0, 0),
 				 bus, "usb_host%d", busnum);
@@ -880,7 +880,7 @@ static void usb_deregister_bus (struct usb_bus *bus)
  */
 static int register_root_hub(struct usb_hcd *hcd)
 {
-	struct device *parent_dev = hcd->self.controller;
+	struct device *parent_dev = hcd->self.controller;// pdev->dev
 	struct usb_device *usb_dev = hcd->self.root_hub;
 	const int devnum = 1;
 	int retval;
@@ -1819,7 +1819,7 @@ struct usb_hcd *usb_create_hcd (const struct hc_driver *driver,
 	kref_init(&hcd->kref);
 
 	usb_bus_init(&hcd->self);
-	hcd->self.controller = dev;
+	hcd->self.controller = dev;// 设备赋值为 pdev->dev
 	hcd->self.bus_name = bus_name;
 	hcd->self.uses_dma = (dev->dma_mask != NULL);
 
@@ -1889,10 +1889,10 @@ int usb_add_hcd(struct usb_hcd *hcd,
 		return retval;
 	}
 
-	if ((retval = usb_register_bus(&hcd->self)) < 0)
+	if ((retval = usb_register_bus(&hcd->self)) < 0)//hcd->self->busnum = 1
 		goto err_register_bus;
 
-	if ((rhdev = usb_alloc_dev(NULL, &hcd->self, 0)) == NULL) {
+	if ((rhdev = usb_alloc_dev(NULL, &hcd->self, 0)) == NULL) {//null to allocate a root hub   设备命名usb1
 		dev_err(hcd->self.controller, "unable to allocate root hub\n");
 		retval = -ENOMEM;
 		goto err_allocate_root_hub;
@@ -1959,7 +1959,7 @@ int usb_add_hcd(struct usb_hcd *hcd,
 
 	/* starting here, usbcore will pay attention to this root hub */
 	rhdev->bus_mA = min(500u, hcd->power_budget);
-	if ((retval = register_root_hub(hcd)) != 0)
+	if ((retval = register_root_hub(hcd)) != 0)//usb_new_device (rhdev)  add  devices/platform/s3c2410-ohci/usb1
 		goto err_register_root_hub;
 
 	retval = sysfs_create_group(&rhdev->dev.kobj, &usb_bus_attr_group);

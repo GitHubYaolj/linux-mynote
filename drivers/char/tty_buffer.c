@@ -180,7 +180,7 @@ static struct tty_buffer *tty_buffer_find(struct tty_struct *tty, size_t size)
 		tbh = &((*tbh)->next);
 	}
 	/* Round the buffer size out */
-	size = (size + 0xFF) & ~0xFF;
+	size = (size + 0xFF) & ~0xFF; //in size=1,2..256时，out size=256 , 以256为最小单位分配空间
 	return tty_buffer_alloc(tty, size);
 	/* Should possibly check if this fails for the largest buffer we
 	   have queued and recycle that ? */
@@ -506,6 +506,6 @@ void tty_buffer_init(struct tty_struct *tty)
 	tty->buf.tail = NULL;
 	tty->buf.free = NULL;
 	tty->buf.memory_used = 0;
-	INIT_DELAYED_WORK(&tty->buf.work, flush_to_ldisc);
+	INIT_DELAYED_WORK(&tty->buf.work, flush_to_ldisc); //初始化了delay work, 接收缓冲区满时delay，delay时间到再次调用flush_to_ldisc
 }
 

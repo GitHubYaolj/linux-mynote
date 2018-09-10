@@ -287,7 +287,7 @@ static int i2s_s3c_irq_nextbyte(struct s3c24xx_i2c *i2c, unsigned long iicstat)
 		/* terminate the transfer if there is nothing to do
 		 * as this is used by the i2c probe to find devices. */
 
-		if (is_lastmsg(i2c) && i2c->msg->len == 0) {
+		if (is_lastmsg(i2c) && i2c->msg->len == 0) { // I2C_SMBUS_QUICK 
 			s3c24xx_i2c_stop(i2c, 0);
 			goto out_ack;
 		}
@@ -504,7 +504,7 @@ static int s3c24xx_i2c_doxfer(struct s3c24xx_i2c *i2c,
     //设置等待队列，直到i2c->msg_num == 0为真或5ms到来才被唤醒
 	timeout = wait_event_timeout(i2c->wait, i2c->msg_num == 0, HZ * 5);
 
-	ret = i2c->msg_idx;
+	ret = i2c->msg_idx; // i2c->msg_idx另一个功能是记录了返回值
 
 	/* having these next two as dev_err() makes life very
 	 * noisy when doing an i2cdetect */
@@ -539,7 +539,7 @@ static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
 
 		ret = s3c24xx_i2c_doxfer(i2c, msgs, num);
 
-		if (ret != -EAGAIN)
+		if (ret != -EAGAIN) // ret 通过 msg_idx 记录了返回值,正常是正值(处理的msg的个数)，异常是各种负值
 			return ret;
 
 		dev_dbg(i2c->dev, "Retrying transmission (%d)\n", retry);

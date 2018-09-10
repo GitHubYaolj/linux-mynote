@@ -27,7 +27,7 @@
 #ifndef __ASSEMBLY__
 #define S3C_ADDR(x)	((void __iomem __force *)S3C_ADDR_BASE + (x))
 #else
-#define S3C_ADDR(x)	(S3C_ADDR_BASE + (x))
+#define S3C_ADDR(x)	(S3C_ADDR_BASE + (x))  //ÖÐ¶Ï¿ØÖÆÆ÷0x4a000000,
 #endif
 
 #define S3C_VA_IRQ	S3C_ADDR(0x00000000)	/* irq controller(s) */
