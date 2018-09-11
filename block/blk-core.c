@@ -1176,7 +1176,7 @@ static int __make_request(struct request_queue *q, struct bio *bio)
 		goto get_rq;
 
 	el_ret = elv_merge(q, &req, bio);//将q和bio通过排序(电梯算法)，合并至req中
-	switch (el_ret) {
+	switch (el_ret) {//能够合并
 	case ELEVATOR_BACK_MERGE:
 		BUG_ON(!rq_mergeable(req));
 
@@ -1230,7 +1230,7 @@ static int __make_request(struct request_queue *q, struct bio *bio)
 		;
 	}
 
-get_rq:
+get_rq://不能合并
 	/*
 	 * This sync check and mask will be re-done in init_request_from_bio(),
 	 * but we need to set it earlier to expose the sync flag to the
@@ -1260,10 +1260,10 @@ get_rq:
 		req->cpu = blk_cpu_to_group(smp_processor_id());
 	if (queue_should_plug(q) && elv_queue_empty(q))
 		blk_plug_device(q);
-	add_request(q, req);
+	add_request(q, req);//不能合并时，将q加入req队列
 out:
 	if (unplug || !queue_should_plug(q))
-		__generic_unplug_device(q);//执行q的成员request_fn()函数
+		__generic_unplug_device(q);//执行q的成员request_fn()函数，如mtd的mtd_blktrans_request，唤醒队列处理函数
 	spin_unlock_irq(q->queue_lock);
 	return 0;
 }
@@ -1467,7 +1467,7 @@ static inline void __generic_make_request(struct bio *bio)
 			goto end_io;
 		}
 
-		ret = q->make_request_fn(q, bio);//编写块驱动时提供
+		ret = q->make_request_fn(q, bio);//make_request_fn编写块驱动时提供,提交申请队列q和bio  //blk_queue_make_request(q, __make_request);
 	} while (ret);
 
 	return;
@@ -1489,7 +1489,7 @@ end_io:
  */
 void generic_make_request(struct bio *bio)
 {
-	if (current->bio_tail) {           //有bio正在提交(bio_tail为struct bio ** 结构)
+	if (current->bio_tail) {           //非空，有bio正在提交(bio_tail为struct bio ** 结构)
 		/* make_request is active */   //将该bio加入bio_tail
 		*(current->bio_tail) = bio;
 		bio->bi_next = NULL;

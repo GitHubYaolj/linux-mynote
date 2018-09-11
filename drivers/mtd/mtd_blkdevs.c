@@ -257,13 +257,13 @@ int add_mtd_blktrans_dev(struct mtd_blktrans_dev *new)
 	if (!tr->writesect)
 		new->readonly = 1;
 
-	gd = alloc_disk(1 << tr->part_bits);
+	gd = alloc_disk(1 << tr->part_bits);// tr->part_bits初始值为0
 	if (!gd) {
 		list_del(&new->list);
 		return -ENOMEM;
 	}
 	gd->major = tr->major;
-	gd->first_minor = (new->devnum) << tr->part_bits;
+	gd->first_minor = (new->devnum) << tr->part_bits;// new->devnum为partno ,
 	gd->fops = &mtd_blktrans_ops;
 
 	if (tr->part_bits)
@@ -277,7 +277,7 @@ int add_mtd_blktrans_dev(struct mtd_blktrans_dev *new)
 				 'a' + new->devnum % 26);
 	else
 		snprintf(gd->disk_name, sizeof(gd->disk_name),
-			 "%s%d", tr->name, new->devnum);
+			 "%s%d", tr->name, new->devnum); // new->devnum为partno
 
 	/* 2.5 has capacity in units of 512 bytes while still
 	   having BLOCK_SIZE_BITS set to 10. Just to keep us amused. */
@@ -285,7 +285,7 @@ int add_mtd_blktrans_dev(struct mtd_blktrans_dev *new)
 
 	gd->private_data = new;
 	new->blkcore_priv = gd;
-	gd->queue = tr->blkcore_priv->rq;
+	gd->queue = tr->blkcore_priv->rq;//同一块flash上不同分区形成的不同块设备，公用一个requestqueue
 	gd->driverfs_dev = new->mtd->dev.parent;
 
 	if (new->readonly)

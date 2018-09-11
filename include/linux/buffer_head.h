@@ -17,7 +17,7 @@
 #ifdef CONFIG_BLOCK
 
 enum bh_state_bits {
-	BH_Uptodate,	/* Contains valid data */
+	BH_Uptodate,	/* Contains valid data */ //如果缓冲区包含有效数据则置1
 	BH_Dirty,	/* Is dirty */
 	BH_Lock,	/* Is locked */
 	BH_Req,		/* Has been submitted for I/O */
@@ -59,21 +59,21 @@ typedef void (bh_end_io_t)(struct buffer_head *bh, int uptodate);
  * for backward compatibility reasons (e.g. submit_bh).
  */
 struct buffer_head {
-	unsigned long b_state;		/* buffer state bitmap (see above) */
+	unsigned long b_state;		/* buffer state bitmap (see above) */  //bh_state_bits
 	struct buffer_head *b_this_page;/* circular list of page's buffers */
 	struct page *b_page;		/* the page this bh is mapped to */ //缓冲区位于哪个页面
 
-	sector_t b_blocknr;		/* start block number */
-	size_t b_size;			/* size of mapping */
-	char *b_data;			/* pointer to data within the page */  //缓冲区
+	sector_t b_blocknr;		/* start block number 逻辑块号*/
+	size_t b_size;			/* size of mapping 块的大小*/
+	char *b_data;			/* pointer to data within the page 页面中的缓冲区*/  //缓冲区
 
-	struct block_device *b_bdev;
-	bh_end_io_t *b_end_io;		/* I/O completion */
+	struct block_device *b_bdev;/* 块设备，来表示一个独立的磁盘设备 */
+	bh_end_io_t *b_end_io;		/* I/O completion IO完成方法*/
  	void *b_private;		/* reserved for b_end_io */
-	struct list_head b_assoc_buffers; /* associated with another mapping */
+	struct list_head b_assoc_buffers; /* associated with another mapping 相关映射链表*/
 	struct address_space *b_assoc_map;	/* mapping this buffer is
 						   associated with */
-	atomic_t b_count;		/* users using this buffer_head */
+	atomic_t b_count;		/* users using this buffer_head 缓冲区使用计数*/ //几个人在使用这个buffer
 };
 
 /*

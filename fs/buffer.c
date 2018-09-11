@@ -1260,7 +1260,7 @@ static inline void check_irqs_on(void)
 }
 
 /*
- * The LRU management algorithm is dopey-but-simple.  Sorry.
+ * The LRU management algorithm is dopey-but-simple.  Sorry. 将bh放入一个数组(lru->bhs)的头部，其他元素相应后移
  */
 static void bh_lru_install(struct buffer_head *bh)
 {
@@ -1302,7 +1302,7 @@ static void bh_lru_install(struct buffer_head *bh)
 }
 
 /*
- * Look up the bh in this cpu's LRU.  If it's there, move it to the head.
+ * Look up the bh in this cpu's LRU.  If it's there, move it to the head. 在lru数组中查找，如果找到符合要求的(bh中的b_bdev b_blocknr b_size都符合)，将它移到最前面
  */
 static struct buffer_head *
 lookup_bh_lru(struct block_device *bdev, sector_t block, unsigned size)
@@ -1351,7 +1351,7 @@ __find_get_block(struct block_device *bdev, sector_t block, unsigned size)
 			bh_lru_install(bh);
 	}
 	if (bh)
-		touch_buffer(bh);
+		touch_buffer(bh);   // mark_page_accessed(bh->b_page)
 	return bh;
 }
 EXPORT_SYMBOL(__find_get_block);
@@ -1405,10 +1405,10 @@ EXPORT_SYMBOL(__breadahead);
 struct buffer_head *
 __bread(struct block_device *bdev, sector_t block, unsigned size)
 {
-	struct buffer_head *bh = __getblk(bdev, block, size);
+	struct buffer_head *bh = __getblk(bdev, block, size);//查找这个block
 
-	if (likely(bh) && !buffer_uptodate(bh))
-		bh = __bread_slow(bh);
+	if (likely(bh) && !buffer_uptodate(bh))//找到bh，但不存在有效数据
+		bh = __bread_slow(bh);//需要从磁盘中读取这个block
 	return bh;
 }
 EXPORT_SYMBOL(__bread);
@@ -2961,12 +2961,12 @@ int submit_bh(int rw, struct buffer_head * bh)
 	bio->bi_io_vec[0].bv_len = bh->b_size;             //扇区大小
 	bio->bi_io_vec[0].bv_offset = bh_offset(bh);       //扇区内偏移量
 
-	bio->bi_vcnt = 1;
-	bio->bi_idx = 0;
-	bio->bi_size = bh->b_size;
+	bio->bi_vcnt = 1;//计数值
+	bio->bi_idx = 0;//索引值
+	bio->bi_size = bh->b_size;//扇区大小
 
 	bio->bi_end_io = end_bio_bh_io_sync;               //io回调函数
-	bio->bi_private = bh;
+	bio->bi_private = bh;//所指向的缓冲区
 
 	bio_get(bio);
 	submit_bio(rw, bio);                               //提交bio
