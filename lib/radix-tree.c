@@ -50,7 +50,7 @@ struct radix_tree_node {
 	unsigned int	height;		/* Height from the bottom */
 	unsigned int	count;
 	struct rcu_head	rcu_head;
-	void		*slots[RADIX_TREE_MAP_SIZE];
+	void		*slots[RADIX_TREE_MAP_SIZE];//8 16 64
 	unsigned long	tags[RADIX_TREE_MAX_TAGS][RADIX_TREE_TAG_LONGS];
 };
 
@@ -257,15 +257,15 @@ static int radix_tree_extend(struct radix_tree_root *root, unsigned long index)
 
 	do {
 		unsigned int newheight;
-		if (!(node = radix_tree_node_alloc(root)))
+		if (!(node = radix_tree_node_alloc(root)))//分配一个新的node节点
 			return -ENOMEM;
 
 		/* Increase the height.  */
-		node->slots[0] = radix_tree_indirect_to_ptr(root->rnode);
+		node->slots[0] = radix_tree_indirect_to_ptr(root->rnode);//原根节点成为新node的slots[0]
 
 		/* Propagate the aggregated tag info into the new root */
 		for (tag = 0; tag < RADIX_TREE_MAX_TAGS; tag++) {
-			if (root_tag_get(root, tag))
+			if (root_tag_get(root, tag))//如果以前的根结点打上了tag，就将新增结点的第1个插槽对应的子节点打上相应的tag
 				tag_set(node, tag, 0);
 		}
 
@@ -300,7 +300,7 @@ int radix_tree_insert(struct radix_tree_root *root,
 
 	/* Make sure the tree is high enough.  */
 	if (index > radix_tree_maxindex(root->height)) {
-		error = radix_tree_extend(root, index);
+		error = radix_tree_extend(root, index);//如果当前树高度不足以存放index，就需要扩展树，扩展方法是在旧树顶上加新的根结点，并将原根结点的tag信息移到新根结点的第1个slot
 		if (error)
 			return error;
 	}
@@ -378,6 +378,7 @@ void **radix_tree_lookup_slot(struct radix_tree_root *root, unsigned long index)
 			return NULL;
 		return (void **)&root->rnode;
 	}
+    /*获取真正结点指针，因为根结点指针的第0位设置为1表示为间接指针。当使用结点指针时，必须将第0位设置为0，因为地址以字对齐*/
 	node = radix_tree_indirect_to_ptr(node);
 
 	height = node->height;
@@ -422,18 +423,18 @@ void *radix_tree_lookup(struct radix_tree_root *root, unsigned long index)
 	if (node == NULL)
 		return NULL;
 
-	if (!radix_tree_is_indirect_ptr(node)) {
+	if (!radix_tree_is_indirect_ptr(node)) {//通过最低位来判断是不是只有根节点
 		if (index > 0)
 			return NULL;
 		return node;
 	}
-	node = radix_tree_indirect_to_ptr(node);
+	node = radix_tree_indirect_to_ptr(node);//纠正root->rnode的地址，因为为了区别是否是空树进行了人为的设置
 
 	height = node->height;
 	if (index > radix_tree_maxindex(height))
 		return NULL;
 
-	shift = (height-1) * RADIX_TREE_MAP_SHIFT;
+	shift = (height-1) * RADIX_TREE_MAP_SHIFT;/*每层索引偏移值为RADIX_TREE_MAP_SHIFT，叶子索引值偏移基数为（树高-1）*每层索引偏移值*/ 
 
 	do {
 		slot = (struct radix_tree_node **)
@@ -446,7 +447,7 @@ void *radix_tree_lookup(struct radix_tree_root *root, unsigned long index)
 		height--;
 	} while (height > 0);
 
-	return node;
+	return node;//叶子节点
 }
 EXPORT_SYMBOL(radix_tree_lookup);
 

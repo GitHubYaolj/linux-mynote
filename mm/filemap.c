@@ -759,7 +759,7 @@ struct page *find_or_create_page(struct address_space *mapping,
 repeat:
 	page = find_lock_page(mapping, index);
 	if (!page) {
-		page = __page_cache_alloc(gfp_mask);
+		page = __page_cache_alloc(gfp_mask);//分配一页内存
 		if (!page)
 			return NULL;
 		/*
@@ -769,7 +769,7 @@ repeat:
 		 * GFP_RECLAIM_MASK collects those requirements.
 		 */
 		err = add_to_page_cache_lru(page, mapping, index,
-			(gfp_mask & GFP_RECLAIM_MASK));
+			(gfp_mask & GFP_RECLAIM_MASK));//将这一页内存以index序号加入地址空间中(某一设备的地址空间)，地址空间以radix tree的形式存在，加入就是讲这一页以index为索引insert进这个radix tree中
 		if (unlikely(err)) {
 			page_cache_release(page);
 			page = NULL;

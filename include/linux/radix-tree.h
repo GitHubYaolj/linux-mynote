@@ -155,10 +155,10 @@ static inline void radix_tree_replace_slot(void **pslot, void *item)
 	rcu_assign_pointer(*pslot, item);
 }
 
-int radix_tree_insert(struct radix_tree_root *, unsigned long, void *);
-void *radix_tree_lookup(struct radix_tree_root *, unsigned long);
-void **radix_tree_lookup_slot(struct radix_tree_root *, unsigned long);
-void *radix_tree_delete(struct radix_tree_root *, unsigned long);
+int radix_tree_insert(struct radix_tree_root *, unsigned long, void *);//插入条目item到树root中
+void *radix_tree_lookup(struct radix_tree_root *, unsigned long);/*在树中查找指定键值的条目，查找成功，返回该条目的指针，否则，返回NULL*/
+void **radix_tree_lookup_slot(struct radix_tree_root *, unsigned long);/*返回指向slot的指针，该slot含有指向查找到条目的指针*/
+void *radix_tree_delete(struct radix_tree_root *, unsigned long);//删除与索引键值index相关的条目，如果删除条目在树中，返回该条目的指针
 unsigned int
 radix_tree_gang_lookup(struct radix_tree_root *root, void **results,
 			unsigned long first_index, unsigned int max_items);
@@ -167,23 +167,23 @@ radix_tree_gang_lookup_slot(struct radix_tree_root *root, void ***results,
 			unsigned long first_index, unsigned int max_items);
 unsigned long radix_tree_next_hole(struct radix_tree_root *root,
 				unsigned long index, unsigned long max_scan);
-int radix_tree_preload(gfp_t gfp_mask);
+int radix_tree_preload(gfp_t gfp_mask);//尝试用给定的gfp_mask分配足够的内存
 void radix_tree_init(void);
 void *radix_tree_tag_set(struct radix_tree_root *root,
-			unsigned long index, unsigned int tag);
+			unsigned long index, unsigned int tag);/*将键值index对应的条目设置标签tag，返回值为设置标签的条目*/
 void *radix_tree_tag_clear(struct radix_tree_root *root,
-			unsigned long index, unsigned int tag);
+			unsigned long index, unsigned int tag);/*从键值index对应的条目清除标签tag，返回值为清除标签的条目*/
 int radix_tree_tag_get(struct radix_tree_root *root,
-			unsigned long index, unsigned int tag);
+			unsigned long index, unsigned int tag);/*检查键值index对应的条目是否为标签tag，如果键值不存在，返回0，如果键值存在，但标签未设置，返回-1；如果键值存在，且标签已设置，返回1*/
 unsigned int
 radix_tree_gang_lookup_tag(struct radix_tree_root *root, void **results,
 		unsigned long first_index, unsigned int max_items,
-		unsigned int tag);
+		unsigned int tag);/*从first_index起查询树root中标签值为tag的条目，在results中返回*/
 unsigned int
 radix_tree_gang_lookup_tag_slot(struct radix_tree_root *root, void ***results,
 		unsigned long first_index, unsigned int max_items,
 		unsigned int tag);
-int radix_tree_tagged(struct radix_tree_root *root, unsigned int tag);
+int radix_tree_tagged(struct radix_tree_root *root, unsigned int tag);/*如果树root中有任何条目使用tag标签，返回键值*/
 
 static inline void radix_tree_preload_end(void)
 {
