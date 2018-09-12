@@ -188,9 +188,9 @@ __find_get_block_slow(struct block_device *bdev, sector_t block)
 	struct page *page;
 	int all_mapped = 1;
 
-	index = block >> (PAGE_CACHE_SHIFT - bd_inode->i_blkbits);
-	page = find_get_page(bd_mapping, index);
-	if (!page)
+	index = block >> (PAGE_CACHE_SHIFT - bd_inode->i_blkbits);//根据block号得到数据所在页的索引，即在第几页
+	page = find_get_page(bd_mapping, index);//在页高速缓存中找到该页
+	if (!page)//没找到
 		goto out;
 
 	spin_lock(&bd_mapping->private_lock);
@@ -894,14 +894,14 @@ try_again:
 	head = NULL;
 	offset = PAGE_SIZE;
 	while ((offset -= size) >= 0) {
-		bh = alloc_buffer_head(GFP_NOFS);
+		bh = alloc_buffer_head(GFP_NOFS);//从bh_cachep缓存中分配缓冲区首部，
 		if (!bh)
 			goto no_grow;
 
 		bh->b_bdev = NULL;
 		bh->b_this_page = head;
 		bh->b_blocknr = -1;
-		head = bh;
+		head = bh;//同一页中的缓冲区加入链表
 
 		bh->b_state = 0;
 		atomic_set(&bh->b_count, 0);
@@ -909,7 +909,7 @@ try_again:
 		bh->b_size = size;
 
 		/* Link the buffer to its page */
-		set_bh_page(bh, page, offset);
+		set_bh_page(bh, page, offset);//设置bh的 b_page(所属页) 和 b_data(缓冲区地址,page首地址和offset)
 
 		init_buffer(bh, NULL, NULL);
 	}
@@ -997,18 +997,23 @@ grow_dev_page(struct block_device *bdev, sector_t block,
 	struct inode *inode = bdev->bd_inode;
 	struct page *page;
 	struct buffer_head *bh;
-
+//该函数主要是在页高速缓存中查找相应的缓冲区页是否存在，如果不存在则建立相应的缓冲区页。
+//最终返回相应缓冲区页的页描述符的地址
 	page = find_or_create_page(inode->i_mapping, index,
 		(mapping_gfp_mask(inode->i_mapping) & ~__GFP_FS)|__GFP_MOVABLE);
+//其中的inode->i_mapping字段指向的是相应的地址空间address_space对象。该函数主要目的是在页高速缓存中查找相应的页，如果没有找到则创建相应的页。
 	if (!page)
 		return NULL;
 
 	BUG_ON(!PageLocked(page));
 
-	if (page_has_buffers(page)) {
+	if (page_has_buffers(page)) {//该函数主要是检查page中的PG_private标志，
+	                            //如果该标志位空的说明，该页不是一个缓冲区页。那么这个时候接下来就会分配相应的缓冲区首部
 		bh = page_buffers(page);
+        //主要是根据页描述符page的private字段来获取缓冲区页的第一个缓冲区首部的地址，即获取第一缓冲区首部bh，
+        //这是在内存中有相应的缓冲区页的情况下才执行这个函数
 		if (bh->b_size == size) {
-			init_page_buffers(page, bdev, block, size);
+			init_page_buffers(page, bdev, block, size);//初始化缓冲区首部的其他字段的值
 			return page;
 		}
 		if (!try_to_free_buffers(page))
@@ -1017,6 +1022,8 @@ grow_dev_page(struct block_device *bdev, sector_t block,
 
 	/*
 	 * Allocate some buffers for this page
+	 根据页中所请求的块大小为页分配n个缓冲区首部，并把他们通过缓冲区首部的字段b_this_page连接成单向循环链表，
+	 同时设置各个缓存区首部的相应的字段的值
 	 */
 	bh = alloc_page_buffers(page, size, 0);
 	if (!bh)
@@ -1028,8 +1035,8 @@ grow_dev_page(struct block_device *bdev, sector_t block,
 	 * run under the page lock.
 	 */
 	spin_lock(&inode->i_mapping->private_lock);
-	link_dev_buffers(page, bh);
-	init_page_buffers(page, bdev, block, size);
+	link_dev_buffers(page, bh);//业内包含的缓冲区形成一个循环链表，由page->private指向
+	init_page_buffers(page, bdev, block, size);//初始化缓冲区首部的其他字段的值
 	spin_unlock(&inode->i_mapping->private_lock);
 	return page;
 
@@ -1054,10 +1061,15 @@ grow_buffers(struct block_device *bdev, sector_t block, int size)
 	sizebits = -1;
 	do {
 		sizebits++;
-	} while ((size << sizebits) < PAGE_SIZE);
+	} while ((size << sizebits) < PAGE_SIZE);////这个while做的工作是判断一个缓冲区页能容纳多少个块缓冲区。
 
-	index = block >> sizebits;
-
+	index = block >> sizebits;//数据页在所请求块的块设备中的偏移量index,即数据也在块设备的第几页上
+/*计算数据页在所请求块的块设备中的偏移量index，然后将block与index对齐。
+（其实就是计算数据页在块设备中的偏移量，实质就是index=block/（PAGE_SIZE/块大小））；
+比如，块大小是512（都是以字节为单位），size << sizebits就是size * 2^sizebits，这个没问题吧！
+那么512*8=4096（PAGE_SIZE），所以跳出循环时sizebits是3，那么index = block >> sizebits，
+也就是最后计算出每个块512字节大小的块设备中的对应块block的块设备中的偏移是index = block / 8。
+然后将block与index对齐：block = index * 8。*/
 	/*
 	 * Check for a block which wants to lie outside our maximum possible
 	 * pagecache index.  (this comparison is done using sector_t types).
@@ -1100,11 +1112,11 @@ __getblk_slow(struct block_device *bdev, sector_t block, int size)
 		struct buffer_head * bh;
 		int ret;
 
-		bh = __find_get_block(bdev, block, size);
+		bh = __find_get_block(bdev, block, size);//在高速缓存中查找
 		if (bh)
 			return bh;
 
-		ret = grow_buffers(bdev, block, size);
+		ret = grow_buffers(bdev, block, size);//分配新的缓冲区页和bh
 		if (ret < 0)
 			return NULL;
 		if (ret == 0)
@@ -1213,7 +1225,7 @@ static struct buffer_head *__bread_slow(struct buffer_head *bh)
 	} else {
 		get_bh(bh);
 		bh->b_end_io = end_buffer_read_sync;
-		submit_bh(READ, bh);
+		submit_bh(READ, bh);//从磁盘读块，将分配到的一个空的buffer_head填满
 		wait_on_buffer(bh);
 		if (buffer_uptodate(bh))
 			return bh;
@@ -1314,6 +1326,11 @@ lookup_bh_lru(struct block_device *bdev, sector_t block, unsigned size)
 	check_irqs_on();
 	bh_lru_lock();
 	lru = &__get_cpu_var(bh_lrus);
+    /*为了提高系统性能，内核维持一个小磁盘高速缓存数组bh_lrus（每个CPU对应一个数组元素），
+    即所谓的最近最少使用（LRU）块高速缓存。每个磁盘高速缓存有8个指针，指向被指定CPU最近访问过的缓冲区首部。
+    对每个CPU数组的元素排序，使指向最后被使用过的那个缓冲区首部的指针索引为0。
+    相同的缓冲区首部可能出现在几个CPU数组中（但是同一个CPU数组中不会有相同的缓冲区首部）。
+    */
 	for (i = 0; i < BH_LRU_SIZE; i++) {
 		struct buffer_head *bh = lru->bhs[i];
 
@@ -1327,7 +1344,7 @@ lookup_bh_lru(struct block_device *bdev, sector_t block, unsigned size)
 				lru->bhs[0] = bh;
 			}
 			get_bh(bh);
-			ret = bh;
+			ret = bh;// 如果缓冲区首部在LRU块高速缓存中，就刷新数组中的元素，以便让指针指在第一个位置（索引为0）刚找到的缓冲区首部，递增它的b_count字段
 			break;
 		}
 	}
@@ -1343,10 +1360,10 @@ lookup_bh_lru(struct block_device *bdev, sector_t block, unsigned size)
 struct buffer_head *
 __find_get_block(struct block_device *bdev, sector_t block, unsigned size)
 {
-	struct buffer_head *bh = lookup_bh_lru(bdev, block, size);
-
+	struct buffer_head *bh = lookup_bh_lru(bdev, block, size);//检查执行CPU的LRU块高速缓存数组中是否有这个缓冲区首部,在lru中查找
+//如果不存在指定的块，就返回NULL
 	if (bh == NULL) {
-		bh = __find_get_block_slow(bdev, block);
+		bh = __find_get_block_slow(bdev, block);//在页高速缓存中查找
 		if (bh)
 			bh_lru_install(bh);
 	}

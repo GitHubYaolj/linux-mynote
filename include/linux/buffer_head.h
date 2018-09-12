@@ -59,13 +59,15 @@ typedef void (bh_end_io_t)(struct buffer_head *bh, int uptodate);
  * for backward compatibility reasons (e.g. submit_bh).
  */
 struct buffer_head {
-	unsigned long b_state;		/* buffer state bitmap (see above) */  //bh_state_bits
-	struct buffer_head *b_this_page;/* circular list of page's buffers */
-	struct page *b_page;		/* the page this bh is mapped to */ //缓冲区位于哪个页面
+	unsigned long b_state;		/* buffer state bitmap (see above) */  //bh_state_bits 缓冲区的状态标志
+	struct buffer_head *b_this_page;/* circular list of page's buffers */ //页面中的缓冲区，一般一个页面会有多个块组成，一个页面中的
+	                                                                    //块是以一个循环链表组成在一起的，该字段指向下一个
+	                                                                    //缓冲区首部的地址
+	struct page *b_page;		/* the page this bh is mapped to */ //缓冲区位于哪个页面，指向拥有该块的页面的页描述符
 
 	sector_t b_blocknr;		/* start block number 逻辑块号*/
 	size_t b_size;			/* size of mapping 块的大小*/
-	char *b_data;			/* pointer to data within the page 页面中的缓冲区*/  //缓冲区
+	char *b_data;			/* pointer to data within the page 页面中的缓冲区*/  //缓冲区，在b_page中
 
 	struct block_device *b_bdev;/* 块设备，来表示一个独立的磁盘设备 */
 	bh_end_io_t *b_end_io;		/* I/O completion IO完成方法*/
