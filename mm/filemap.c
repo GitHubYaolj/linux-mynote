@@ -1161,8 +1161,8 @@ page_not_up_to_date_locked:
 
 readpage:
 		/* Start the actual read. The read will unlock the page. */
-		error = mapping->a_ops->readpage(filp, page);
-
+		error = mapping->a_ops->readpage(filp, page);//其实是inode节点里设置好的调用函数，不同文件系统函数不同，在创建inode的时候就设置好了
+                                                        //而各个文件系统类型提供的a_ops->readpage函数一般是mpage_readpage函数的封装
 		if (unlikely(error)) {
 			if (error == AOP_TRUNCATED_PAGE) {
 				page_cache_release(page);
@@ -1369,6 +1369,9 @@ generic_file_aio_read(struct kiocb *iocb, const struct iovec *iov,
 		if (desc.count == 0)
 			continue;
 		desc.error = 0;
+        /*在radix树里面查找是否存在对应的page，且该页可用。
+        是则从page里面读出所需的数据，然后返回，
+        否则通过file->f_mapping->a_ops->readpage去读这个页*/
 		do_generic_file_read(filp, ppos, &desc, file_read_actor);
 		retval += desc.written;
 		if (desc.error) {

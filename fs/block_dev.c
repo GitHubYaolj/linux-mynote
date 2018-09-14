@@ -1174,7 +1174,7 @@ static int __blkdev_get(struct block_device *bdev, fmode_t mode, int for_part)
 				goto out_clear;
 
 			if (disk->fops->open) {
-				ret = disk->fops->open(bdev, mode);
+				ret = disk->fops->open(bdev, mode);//add_mtd_blktrans_dev , gd->fops = &mtd_blktrans_ops; blktrans_open
 				if (ret == -ERESTARTSYS) {
 					/* Lost a race with 'disk' being
 					 * deleted, try again.
@@ -1289,7 +1289,7 @@ static int blkdev_open(struct inode * inode, struct file * filp)
 	if ((filp->f_flags & O_ACCMODE) == 3)
 		filp->f_mode |= FMODE_WRITE_IOCTL;
 
-	bdev = bd_acquire(inode);
+	bdev = bd_acquire(inode);//完成文件系统inode到块设备bdev的转换，hash
 	if (bdev == NULL)
 		return -ENOMEM;
 
@@ -1412,7 +1412,7 @@ const struct file_operations def_blk_fops = {
 	.open		= blkdev_open,
 	.release	= blkdev_close,
 	.llseek		= block_llseek,
-	.read		= do_sync_read,
+	.read		= do_sync_read,//利用aio_read来完成同步读
 	.write		= do_sync_write,
   	.aio_read	= generic_file_aio_read,
   	.aio_write	= generic_file_aio_write_nolock,

@@ -229,7 +229,8 @@ do_mpage_readpage(struct bio *bio, struct page *page, unsigned nr_pages,
 
 		if (block_in_file < last_block) {
 			map_bh->b_size = (last_block-block_in_file) << blkbits;
-			if (get_block(inode, block_in_file, map_bh, 0))
+			if (get_block(inode, block_in_file, map_bh, 0))//和__getblk不一样，这里得到的map_bh里就有了要读的块在磁盘中的具体扇区号
+//后面为什么不直接调用submit_bh，而是构造bio后调用mpage_bio_submit呢???
 				goto confused;
 			*first_logical_block = block_in_file;
 		}
@@ -415,6 +416,7 @@ int mpage_readpage(struct page *page, get_block_t get_block)
 	clear_buffer_mapped(&map_bh);
 	bio = do_mpage_readpage(bio, page, 1, &last_block_in_bio,
 			&map_bh, &first_logical_block, get_block);
+    //调用do_mpage_readpage构造一个bio，再调用mpage_bio_submit将其提交
 	if (bio)
 		mpage_bio_submit(READ, bio);
 	return 0;
