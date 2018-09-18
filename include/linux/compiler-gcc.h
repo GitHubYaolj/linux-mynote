@@ -9,6 +9,11 @@
 
 /* Optimization barrier */
 /* The "volatile" is due to gcc bugs */
+
+/* 这里的memory就是告知gcc，在汇编代码中，我修改了memory中的内容，
+嵌入式汇编之前的c代码块和嵌入式汇编之后的c代码块看到的memory是不一样的，
+对memory的访问不能依赖于嵌入式汇编之前的c代码块中寄存器的内容，需要重新加载。 
+*/
 #define barrier() __asm__ __volatile__("": : :"memory")
 
 /*

@@ -1175,7 +1175,7 @@ static int __make_request(struct request_queue *q, struct bio *bio)
 	if (unlikely(bio_barrier(bio)) || elv_queue_empty(q))
 		goto get_rq;
 
-	el_ret = elv_merge(q, &req, bio);//将q和bio通过排序(电梯算法)，合并至req中
+	el_ret = elv_merge(q, &req, bio);//将bio合并至已经存在的req中
 	switch (el_ret) {//能够合并
 	case ELEVATOR_BACK_MERGE:
 		BUG_ON(!rq_mergeable(req));
@@ -1244,7 +1244,7 @@ get_rq://不能合并
 	 * Grab a free request. This is might sleep but can not fail.
 	 * Returns with the queue unlocked.
 	 */
-	req = get_request_wait(q, rw_flags, bio);
+	req = get_request_wait(q, rw_flags, bio);//新建一个request
 
 	/*
 	 * After dropping the lock and possibly sleeping here, our request
