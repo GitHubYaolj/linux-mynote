@@ -1,4 +1,17 @@
----- s3c2410_nand_init_chip Matches (3 in 1 files) ----
-S3c2410.c (drivers\mtd\nand):/* s3c2410_nand_init_chip
-S3c2410.c (drivers\mtd\nand):static void s3c2410_nand_init_chip(struct s3c2410_nand_info *info,
-S3c2410.c (drivers\mtd\nand):		s3c2410_nand_init_chip(info, nmtd, sets);
+---- misc_register Matches (16 in 11 files) ----
+EmbedSky_backlight.c (drivers\video):	ret = misc_register(&misc);
+Hp_sdc_rtc.c (drivers\input\misc):	if (misc_register(&hp_sdc_rtc_dev) != 0)
+Miscdevice.h (include\linux):extern int misc_register(struct miscdevice * misc);
+Mousedev.c (drivers\input):	error = misc_register(&psaux_mouse);
+Ov9650.c (drivers\media\video):	if (misc_register(&misc) < 0)
+Pm_qos_params.c (kernel):	return misc_register(&qos->pm_qos_power_miscdev);
+S3c2410_wdt.c (drivers\watchdog):	ret = misc_register(&s3c2410wdt_miscdev);
+Serio_raw.c (drivers\input\serio):	err = misc_register(&serio_raw->dev);
+Serio_raw.c (drivers\input\serio):		err = misc_register(&serio_raw->dev);
+Sn_console.c (drivers\serial):#define USE_DYNAMIC_MINOR 0	/* Don't rely on misc_register dynamic minor */
+Sn_console.c (drivers\serial):#define DEVICE_NAME_DYNAMIC "ttySG0"	/* need full name for misc_register */
+Sn_console.c (drivers\serial):static struct miscdevice misc;	/* used with misc_register for dynamic */
+Sn_console.c (drivers\serial):		retval = misc_register(&misc);
+Sn_console.c (drivers\serial):			       "device using misc_register.\n");
+Uinput.c (drivers\input\misc):	return misc_register(&uinput_misc);
+User.c (kernel\power):	return misc_register(&snapshot_device);

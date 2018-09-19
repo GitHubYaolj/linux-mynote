@@ -241,8 +241,22 @@ out:
 	return fault;
 }
 
+
+/*
+regs:该结构包含当异常发生时的微处理器寄存器的值
+ 3位的error_code,当异常发生时由控制单元压入栈中
+ -如果第0位被清0，则异常由访问一个不存在的页所
+ 引起，否则，则异常由无效的访问权限所引起；
+ -如果第1位被清0，表示异常由读访问或者执行访问
+ 所引起，反之，异常由写访问引起；
+ -如果第2位被清0，则异常发生在处理器处于内核态
+ 时，否则，异常发生在处理器处于用户态时
+-如果3位为1表示检测到使用了保留位。4位为1表示
+1表示缺页异常是在取指令的时候出现的
+*/
+
 static int __kprobes
-do_page_fault(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
+do_page_fault(unsigned long addr, unsigned int fsr, struct pt_regs *regs) //获取内存出错的地址
 {
 	struct task_struct *tsk;
 	struct mm_struct *mm;
