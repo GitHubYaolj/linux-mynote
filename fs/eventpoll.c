@@ -180,7 +180,7 @@ struct eventpoll { // 在epoll_create时创建
 	 * happened while transfering ready events to userspace w/out
 	 * holding ->lock.
 	 */
-	struct epitem *ovflist;//将事件到达的fd进行链接起来发送至用户空间
+	struct epitem *ovflist;//在ep_scan_ready_list中list_splice_init(&ep->rdllist, &txlist);期间 到达的事件，此时不能加入rdllist,临时存放于ovflist
 
 	/* The user that created the eventpoll descriptor */
 	struct user_struct *user;
