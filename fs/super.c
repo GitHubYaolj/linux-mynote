@@ -1007,7 +1007,7 @@ vfs_kern_mount(struct file_system_type *type, int flags, const char *name, void 
 		return ERR_PTR(-ENODEV);
 
 	error = -ENOMEM;
-	mnt = alloc_vfsmnt(name);//分配一块内存然后初始化
+	mnt = alloc_vfsmnt(name);//分配一块内存然后初始化,建立vfsmount
 	if (!mnt)
 		goto out;
 
@@ -1022,6 +1022,7 @@ vfs_kern_mount(struct file_system_type *type, int flags, const char *name, void 
 	}
 
 	error = type->get_sb(type, flags, name, data, mnt);//调用get_sb_single(),得到一个超级块
+	////为文件系统建立并填充超级块(主要是其dentry和inode)，建立rootfs根目录  
 	if (error < 0)
 		goto out_free_secdata;
 	BUG_ON(!mnt->mnt_sb);
@@ -1030,8 +1031,8 @@ vfs_kern_mount(struct file_system_type *type, int flags, const char *name, void 
  	if (error)
  		goto out_sb;
 
-	mnt->mnt_mountpoint = mnt->mnt_root;
-	mnt->mnt_parent = mnt;
+	mnt->mnt_mountpoint = mnt->mnt_root;//挂节点就是刚才建立的"/"，挂载点就是自己
+	mnt->mnt_parent = mnt;//挂载父对象是自己
 	up_write(&mnt->mnt_sb->s_umount);
 	free_secdata(secdata);
 	return mnt;

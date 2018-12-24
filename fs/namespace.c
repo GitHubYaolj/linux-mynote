@@ -2240,7 +2240,7 @@ static void __init init_mount_tree(void)
 	struct mnt_namespace *ns;
 	struct path root;
 
-	mnt = do_kern_mount("rootfs", 0, "rootfs", NULL);
+	mnt = do_kern_mount("rootfs", 0, "rootfs", NULL);//创建rootfs的vfsmount结构，建立rootfs的超级块、并将rootfs挂载到自己的根目录
 	if (IS_ERR(mnt))
 		panic("Can't create rootfs");
 	ns = kmalloc(sizeof(*ns), GFP_KERNEL);
@@ -2260,8 +2260,8 @@ static void __init init_mount_tree(void)
 	root.mnt = ns->root;
 	root.dentry = ns->root->mnt_root;
 
-	set_fs_pwd(current->fs, &root);
-	set_fs_root(current->fs, &root);
+	set_fs_pwd(current->fs, &root);//设置系统current的pwd目录和文件系统
+	set_fs_root(current->fs, &root); //设置系统current根目录,根文件系统。这个是关键！！！整个内核代码最多只有两处调用 
 }
 
 void __init mnt_init(void)
@@ -2284,14 +2284,14 @@ void __init mnt_init(void)
 	for (u = 0; u < HASH_SIZE; u++)
 		INIT_LIST_HEAD(&mount_hashtable[u]);
 
-	err = sysfs_init();
+	err = sysfs_init();//注册并挂载sysfs
 	if (err)
 		printk(KERN_WARNING "%s: sysfs_init error: %d\n",
 			__func__, err);
 	fs_kobj = kobject_create_and_add("fs", NULL);
 	if (!fs_kobj)
 		printk(KERN_WARNING "%s: kobj create error\n", __func__);
-	init_rootfs();
+	init_rootfs(); //实际执行 register_filesystem(&rootfs_fs_type);
 	init_mount_tree();//注册了类型为rootfs的fs  kernel_init->do_basic_setup->do_initcalls 调用 rootfs_initcall 注册过的函数 populate_rootfs
 }
 

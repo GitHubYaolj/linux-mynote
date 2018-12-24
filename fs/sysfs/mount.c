@@ -62,6 +62,7 @@ static int sysfs_fill_super(struct super_block *sb, void *data, int silent)
 	}
 
 	/* instantiate and link root dentry */
+    //inode 和 dentry就是一一对应的，根据inode生成一个dentry
 	root = d_alloc_root(inode); //“/”，伟大的”/”原来就在这里面
 	if (!root) {
 		pr_debug("%s: could not get root dentry!\n",__func__);
@@ -69,7 +70,7 @@ static int sysfs_fill_super(struct super_block *sb, void *data, int silent)
 		return -ENOMEM;
 	}
 	root->d_fsdata = &sysfs_root;
-	sb->s_root = root;
+	sb->s_root = root;//一会儿会把sysfs链接到sb->s_root,即vsfmount->mnt_mountpoint = sb->s_root
 	return 0;
 }
 
@@ -101,7 +102,8 @@ int __init sysfs_init(void)
     //将传入的文件系统对象链入一个叫file_systems的全局文件系统对象链表中
 	err = register_filesystem(&sysfs_fs_type);//sruct file_system_type 文件系统对象结构体
 	if (!err) {
-		sysfs_mount = kern_mount(&sysfs_fs_type);// vfs_kern_mount() 分配一块内存然后初始化
+		sysfs_mount = kern_mount(&sysfs_fs_type);// vfs_kern_mount() 分配一块内存然后初始化 
+		//kern_mount()主要完成挂载点、超级块、根目录和索引节点的创建和初始化操作，可以看成是一个原子操作
 		if (IS_ERR(sysfs_mount)) {
 			printk(KERN_ERR "sysfs: could not mount!\n");
 			err = PTR_ERR(sysfs_mount);

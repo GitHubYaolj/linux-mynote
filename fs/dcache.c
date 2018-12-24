@@ -1099,7 +1099,7 @@ struct dentry * d_alloc_root(struct inode * root_inode)
 
 		res = d_alloc(NULL, &name);
 		if (res) {
-			res->d_sb = root_inode->i_sb;
+			res->d_sb = root_inode->i_sb;//指向superblock
 			res->d_parent = res;
 			d_instantiate(res, root_inode);
 		}
@@ -2322,7 +2322,7 @@ void __init vfs_caches_init(unsigned long mempages)
 	dcache_init();//创建 目录项缓存 ,已创建dentry哈希表
 	inode_init(); //创建 inode索引点缓存，已创建inode哈希表
 	files_init(mempages);//创建了一块名为filp_cachep的缓存
-	mnt_init(); // 会调用sysfs_init()
+	mnt_init(); // 会调用sysfs_init(), init_rootfs(), init_mount_tree(), 挂载了sysfs和rootfs，并设置当前文件系统为rootfs
 	bdev_cache_init();
 	chrdev_init();
 }
