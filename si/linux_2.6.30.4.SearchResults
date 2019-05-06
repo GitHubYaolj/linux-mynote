@@ -1,4 +1,21 @@
----- epoll_wait Matches (3 in 1 files) ----
-Eventpoll.c (fs):				 * epoll_wait() will check again the events
-Eventpoll.c (fs): * part of the user space epoll_wait(2).
-Eventpoll.c (fs):SYSCALL_DEFINE4(epoll_wait, int, epfd, struct epoll_event __user *, events,
+---- RLIMIT_CPU Matches (20 in 3 files) ----
+Fork.c (kernel):	if (sig->rlim[RLIMIT_CPU].rlim_cur != RLIM_INFINITY) {
+Fork.c (kernel):			secs_to_cputime(sig->rlim[RLIMIT_CPU].rlim_cur);
+Posix-cpu-timers.c (kernel): * Called after updating RLIMIT_CPU to set timer expiration if necessary.
+Posix-cpu-timers.c (kernel):				i = p->signal->rlim[RLIMIT_CPU].rlim_cur;
+Posix-cpu-timers.c (kernel):	    sig->rlim[RLIMIT_CPU].rlim_cur == RLIM_INFINITY &&
+Posix-cpu-timers.c (kernel):	if (sig->rlim[RLIMIT_CPU].rlim_cur != RLIM_INFINITY) {
+Posix-cpu-timers.c (kernel):		if (psecs >= sig->rlim[RLIMIT_CPU].rlim_max) {
+Posix-cpu-timers.c (kernel):		if (psecs >= sig->rlim[RLIMIT_CPU].rlim_cur) {
+Posix-cpu-timers.c (kernel):			if (sig->rlim[RLIMIT_CPU].rlim_cur
+Posix-cpu-timers.c (kernel):			    < sig->rlim[RLIMIT_CPU].rlim_max) {
+Posix-cpu-timers.c (kernel):				sig->rlim[RLIMIT_CPU].rlim_cur++;
+Posix-cpu-timers.c (kernel):		x = secs_to_cputime(sig->rlim[RLIMIT_CPU].rlim_cur);
+Posix-cpu-timers.c (kernel):	return sig->rlim[RLIMIT_CPU].rlim_cur != RLIM_INFINITY;
+Posix-cpu-timers.c (kernel):		 * If the RLIMIT_CPU timer will expire before the
+Posix-cpu-timers.c (kernel):		if (tsk->signal->rlim[RLIMIT_CPU].rlim_cur
+Sys.c (kernel):	if (resource == RLIMIT_CPU && new_rlim.rlim_cur == 0) {
+Sys.c (kernel):		 * The caller is asking for an immediate RLIMIT_CPU
+Sys.c (kernel):	if (resource != RLIMIT_CPU)
+Sys.c (kernel):	 * RLIMIT_CPU handling.   Note that the kernel fails to return an error
+Sys.c (kernel):	 * code if it rejected the user's attempt to set RLIMIT_CPU.  This is a

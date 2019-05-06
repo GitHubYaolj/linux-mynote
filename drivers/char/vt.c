@@ -2954,7 +2954,7 @@ int __init vty_init(const struct file_operations *console_fops)
 	tty_set_operations(console_driver, &con_ops);
 	if (tty_register_driver(console_driver))
 		panic("Couldn't register console driver\n");
-	kbd_init();
+	kbd_init(); //input_register_handler(&kbd_handler)
 	console_map_init();
 #ifdef CONFIG_PROM_CONSOLE
 	prom_con_init();

@@ -821,7 +821,7 @@ static int __dev_alloc_name(struct net *net, const char *name, char *buf)
 
 			/*  avoid cases where sscanf is not exact inverse of printf */
 			snprintf(buf, IFNAMSIZ, name, i);
-			if (!strncmp(buf, d->name, IFNAMSIZ))
+			if (!strncmp(buf, d->name, IFNAMSIZ))//如果buf 与 d->name 中长度 FINAMSIZ 的内容完全一致， 则set_bit
 				set_bit(i, inuse);
 		}
 

@@ -478,15 +478,15 @@ handle_edge_irq(unsigned int irq, struct irq_desc *desc)
 		desc = irq_remap_to_desc(irq, desc);
 		goto out_unlock;
 	}
-	kstat_incr_irqs_this_cpu(irq, desc);
+	kstat_incr_irqs_this_cpu(irq, desc);//中断计数加1，/proc/interrupts 会用到
 
 	/* Start handling the irq */
 	if (desc->chip->ack)
-		desc->chip->ack(irq);
+		desc->chip->ack(irq); //清除中断标志位
 	desc = irq_remap_to_desc(irq, desc);
 
 	/* Mark the IRQ currently in progress.*/
-	desc->status |= IRQ_INPROGRESS;
+	desc->status |= IRQ_INPROGRESS;//标记当前中断为正在运行
 
 	do {
 		struct irqaction *action = desc->action;
@@ -511,7 +511,7 @@ handle_edge_irq(unsigned int irq, struct irq_desc *desc)
 
 		desc->status &= ~IRQ_PENDING;
 		spin_unlock(&desc->lock);
-		action_ret = handle_IRQ_event(irq, action);
+		action_ret = handle_IRQ_event(irq, action);//真正的处理过程
 		if (!noirqdebug)
 			note_interrupt(irq, desc, action_ret);
 		spin_lock(&desc->lock);

@@ -1378,7 +1378,7 @@ static void n_tty_receive_buf(struct tty_struct *tty, const unsigned char *cp,
 	char	buf[64];
 	unsigned long cpuflags;
 
-	if (!tty->read_buf)
+	if (!tty->read_buf)//n_tty_open 打开时 分配空间 N_TTY_BUF_SIZE 4096
 		return;
 
 	if (tty->real_raw) {
