@@ -427,7 +427,7 @@ int videobuf_reqbufs(struct videobuf_queue *q,
 	if (count > VIDEO_MAX_FRAME)
 		count = VIDEO_MAX_FRAME;
 	size = 0;
-	q->ops->buf_setup(q, &count, &size);//size,count赋值
+	q->ops->buf_setup(q, &count, &size);//size,count赋值   vivi中为vivi_video_qops
 	size = PAGE_ALIGN(size);
 	dprintk(1, "reqbufs: bufs=%d, size=0x%x [%d pages total]\n",
 		count, size, (count*size)>>PAGE_SHIFT);
@@ -988,7 +988,7 @@ ssize_t videobuf_read_stream(struct videobuf_queue *q,
 
 		if (q->read_buf->state == VIDEOBUF_DONE) {
 			rc = CALL(q, copy_stream, q, data + retval, count,
-					retval, vbihack, nonblocking);
+					retval, vbihack, nonblocking);//struct videobuf_qtype_ops qops
 			if (rc < 0) {
 				retval = rc;
 				break;
@@ -1008,7 +1008,7 @@ ssize_t videobuf_read_stream(struct videobuf_queue *q,
 			list_add_tail(&q->read_buf->stream,
 				      &q->stream);
 			spin_lock_irqsave(q->irqlock, flags);
-			q->ops->buf_queue(q, q->read_buf);
+			q->ops->buf_queue(q, q->read_buf);//vivi_video_qops
 			spin_unlock_irqrestore(q->irqlock, flags);
 			q->read_buf = NULL;
 		}

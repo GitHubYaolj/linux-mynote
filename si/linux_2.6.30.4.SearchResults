@@ -1,21 +1,42 @@
----- RLIMIT_CPU Matches (20 in 3 files) ----
-Fork.c (kernel):	if (sig->rlim[RLIMIT_CPU].rlim_cur != RLIM_INFINITY) {
-Fork.c (kernel):			secs_to_cputime(sig->rlim[RLIMIT_CPU].rlim_cur);
-Posix-cpu-timers.c (kernel): * Called after updating RLIMIT_CPU to set timer expiration if necessary.
-Posix-cpu-timers.c (kernel):				i = p->signal->rlim[RLIMIT_CPU].rlim_cur;
-Posix-cpu-timers.c (kernel):	    sig->rlim[RLIMIT_CPU].rlim_cur == RLIM_INFINITY &&
-Posix-cpu-timers.c (kernel):	if (sig->rlim[RLIMIT_CPU].rlim_cur != RLIM_INFINITY) {
-Posix-cpu-timers.c (kernel):		if (psecs >= sig->rlim[RLIMIT_CPU].rlim_max) {
-Posix-cpu-timers.c (kernel):		if (psecs >= sig->rlim[RLIMIT_CPU].rlim_cur) {
-Posix-cpu-timers.c (kernel):			if (sig->rlim[RLIMIT_CPU].rlim_cur
-Posix-cpu-timers.c (kernel):			    < sig->rlim[RLIMIT_CPU].rlim_max) {
-Posix-cpu-timers.c (kernel):				sig->rlim[RLIMIT_CPU].rlim_cur++;
-Posix-cpu-timers.c (kernel):		x = secs_to_cputime(sig->rlim[RLIMIT_CPU].rlim_cur);
-Posix-cpu-timers.c (kernel):	return sig->rlim[RLIMIT_CPU].rlim_cur != RLIM_INFINITY;
-Posix-cpu-timers.c (kernel):		 * If the RLIMIT_CPU timer will expire before the
-Posix-cpu-timers.c (kernel):		if (tsk->signal->rlim[RLIMIT_CPU].rlim_cur
-Sys.c (kernel):	if (resource == RLIMIT_CPU && new_rlim.rlim_cur == 0) {
-Sys.c (kernel):		 * The caller is asking for an immediate RLIMIT_CPU
-Sys.c (kernel):	if (resource != RLIMIT_CPU)
-Sys.c (kernel):	 * RLIMIT_CPU handling.   Note that the kernel fails to return an error
-Sys.c (kernel):	 * code if it rejected the user's attempt to set RLIMIT_CPU.  This is a
+---- urb_dequeue Matches (41 in 40 files) ----
+C67x00-hcd.c (drivers\usb\c67x00):	.urb_dequeue	= c67x00_urb_dequeue,
+Dummy_hcd.c (drivers\usb\gadget):	.urb_dequeue = 		dummy_urb_dequeue,
+Ehci-au1xxx.c (drivers\usb\host):	.urb_dequeue		= ehci_urb_dequeue,
+Ehci-fsl.c (drivers\usb\host):	.urb_dequeue = ehci_urb_dequeue,
+Ehci-ixp4xx.c (drivers\usb\host):	.urb_dequeue		= ehci_urb_dequeue,
+Ehci-orion.c (drivers\usb\host):	.urb_dequeue = ehci_urb_dequeue,
+Ehci-pci.c (drivers\usb\host):	.urb_dequeue =		ehci_urb_dequeue,
+Ehci-ppc-of.c (drivers\usb\host):	.urb_dequeue		= ehci_urb_dequeue,
+Ehci-ps3.c (drivers\usb\host):	.urb_dequeue		= ehci_urb_dequeue,
+Fhci-hcd.c (drivers\usb\host):	.urb_dequeue = fhci_urb_dequeue,
+Hcd.c (drivers\usb\core):		value = hcd->driver->urb_dequeue(hcd, urb, status);
+Hcd.c (drivers\usb\host\whci):	.urb_dequeue = whc_urb_dequeue,
+Hcd.h (drivers\usb\core):	int	(*urb_dequeue)(struct usb_hcd *hcd,
+Hcd.h (drivers\usb\core):	/* hw synch, freeing endpoint resources that urb_dequeue can't */
+Hwa-hc.c (drivers\usb\host):	.urb_dequeue = hwahc_op_urb_dequeue,
+Isp116x-hcd.c (drivers\usb\host):	.urb_dequeue = isp116x_urb_dequeue,
+Isp1760-hcd.c (drivers\usb\host):	.urb_dequeue		= isp1760_urb_dequeue,
+Musb_host.c (drivers\usb\musb):	.urb_dequeue		= musb_urb_dequeue,
+Ohci-at91.c (drivers\usb\host):	.urb_dequeue =		ohci_urb_dequeue,
+Ohci-au1xxx.c (drivers\usb\host):	.urb_dequeue =		ohci_urb_dequeue,
+Ohci-ep93xx.c (drivers\usb\host):	.urb_dequeue		= ohci_urb_dequeue,
+Ohci-lh7a404.c (drivers\usb\host):	.urb_dequeue =		ohci_urb_dequeue,
+Ohci-omap.c (drivers\usb\host):	.urb_dequeue =		ohci_urb_dequeue,
+Ohci-pci.c (drivers\usb\host):	.urb_dequeue =		ohci_urb_dequeue,
+Ohci-pnx4008.c (drivers\usb\host):	.urb_dequeue = ohci_urb_dequeue,
+Ohci-pnx8550.c (drivers\usb\host):	.urb_dequeue =		ohci_urb_dequeue,
+Ohci-ppc-of.c (drivers\usb\host):	.urb_dequeue =		ohci_urb_dequeue,
+Ohci-ppc-soc.c (drivers\usb\host):	.urb_dequeue =		ohci_urb_dequeue,
+Ohci-ps3.c (drivers\usb\host):	.urb_dequeue		= ohci_urb_dequeue,
+Ohci-pxa27x.c (drivers\usb\host):	.urb_dequeue =		ohci_urb_dequeue,
+Ohci-s3c2410.c (drivers\usb\host):	.urb_dequeue =		ohci_urb_dequeue,
+Ohci-sa1111.c (drivers\usb\host):	.urb_dequeue =		ohci_urb_dequeue,
+Ohci-sh.c (drivers\usb\host):	.urb_dequeue =		ohci_urb_dequeue,
+Ohci-sm501.c (drivers\usb\host):	.urb_dequeue =		ohci_urb_dequeue,
+Ohci-ssb.c (drivers\usb\host):	.urb_dequeue		= ohci_urb_dequeue,
+Ohci-tmio.c (drivers\usb\host):	.urb_dequeue =		ohci_urb_dequeue,
+Oxu210hp-hcd.c (drivers\usb\host):	.urb_dequeue =		oxu_urb_dequeue,
+R8a66597-hcd.c (drivers\usb\host):	.urb_dequeue =		r8a66597_urb_dequeue,
+Sl811-hcd.c (drivers\usb\host):	.urb_dequeue =		sl811h_urb_dequeue,
+U132-hcd.c (drivers\usb\host):	.urb_dequeue = u132_urb_dequeue,
+Uhci-hcd.c (drivers\usb\host):	.urb_dequeue =		uhci_urb_dequeue,
